@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>+</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --elko-green: #638b2c;
+      --elko-dark: #00126b;
+      --sidebar-bg: #14171c;
+      --sidebar-text: #a8ada8;
+      --surface-page: #ffffff;
+      --surface-card: #f5f6f4;
+      --border: #e5e5e2;
+      --text-primary: #14171c;
+      --text-secondary: #666660;
+      --text-muted: #999992;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --surface-page: #1c1f24;
+        --surface-card: #262a30;
+        --border: #363b42;
+        --text-primary: #f0f0ee;
+        --text-secondary: #b4b4ac;
+        --text-muted: #86867e;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: var(--surface-page);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--sidebar-bg);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin: 0 8px 28px;
+    }
+
+    .sidebar img.logo {
+      height: 28px;
+      display: block;
+    }
+
+    .sidebar .plus {
+      color: var(--elko-green);
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--sidebar-text);
+      font-size: 14px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      background: var(--elko-green);
+      color: white;
+    }
+
+    .nav-item:not(.active):hover {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      padding: 24px 32px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--elko-dark);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .welcome {
+      background: #183d1e;
+      border-radius: 12px;
+      padding: 32px;
+      color: #fff;
+    }
+
+    .welcome h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .welcome p {
+      font-size: 14px;
+      color: #c9d6c9;
+      max-width: 460px;
+      line-height: 1.5;
+    }
+
+    .section-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .tool-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: border-color 0.15s;
+    }
+
+    .tool-card:hover {
+      border-color: var(--elko-green);
+    }
+
+    .tool-card .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(99, 139, 44, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--elko-green);
+    }
+
+    .icon svg, .nav-item svg, .search svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .tool-card .icon svg { width: 20px; height: 20px; }
+
+    .tool-card .name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .tool-card .desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="brand">
+      <img class="logo" src="images/ELKO_logo_SVG.svg" alt="ELKO">
+      <span class="plus">+</span>
+    </div>
+    <a class="nav-item active" href="index.html">
+      <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+      Heim
+    </a>
+    <a class="nav-item" href="#tools">
+      <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 1-5.6 5.6l-6.4 6.4a1.5 1.5 0 0 0 2.1 2.1l6.4-6.4a4 4 0 0 1 5.6-5.6l-2.6 2.6-2-2 2.5-2.7z"/></svg>
+      Kerfi og tól
+    </a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Leita á vefnum...
+      </div>
+      <div class="avatar">MT</div>
+    </div>
+
+    <div class="welcome">
+      <h1>Velkomin(n) í ELKO+</h1>
+      <p>Aðgangur að núverandi verkfærum ELKO á einum stað.</p>
+    </div>
+
+    <div id="tools">
+      <div class="section-label">Kerfi og tól</div>
+      <div class="tool-grid">
+        <a class="tool-card" href="https://miketeex.github.io/lagerlr/" target="_blank" rel="noopener">
+          <div class="icon">
+            <svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1.5"/><path d="M9 3v3h6V3"/><path d="M9 11h6M9 15h6"/></svg>
+          </div>
+          <div class="name">Lagerleiðrétting</div>
+          <div class="desc">Tilkynna lagerfrávik</div>
+        </a>
+        <a class="tool-card" href="https://miketeex.github.io/elko-bankinn/" target="_blank" rel="noopener">
+          <div class="icon">
+            <svg viewBox="0 0 24 24"><path d="M5 20 11 9l5 3.6z"/><path d="M15 4.5l1 2M19 4l.5 2M21 8l2 .5M12 4l1 1.5"/></svg>
+          </div>
+          <div class="name">Partýlager</div>
+          <div class="desc">Bankinn</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
