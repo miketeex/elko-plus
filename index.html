@@ -547,42 +547,10 @@
     <section id="news">
       <div class="section-header">
         <h2>Fréttir</h2>
-        <a class="see-all">Skoða allar fréttir <i data-lucide="arrow-right"></i></a>
+        <a class="see-all" href="https://blogg.elko.is/" target="_blank" rel="noopener">Skoða allar fréttir <i data-lucide="arrow-right"></i></a>
       </div>
-      <div class="news-grid">
-        <div class="news-card">
-          <div class="news-img">
-            <span class="news-tag" style="background:var(--success);">NÝTT</span>
-            <i data-lucide="image" style="width:28px; height:28px;"></i>
-          </div>
-          <div class="news-body">
-            <div class="news-date">Dæmi — efni vantar</div>
-            <div class="news-title">Fréttakerfi ekki tengt ennþá</div>
-            <div class="news-excerpt">Þessi kortarým sýnir hvernig frétt myndi líta út þegar fréttakerfi er tengt.</div>
-          </div>
-        </div>
-        <div class="news-card">
-          <div class="news-img">
-            <span class="news-tag" style="background:var(--info);">DÆMI</span>
-            <i data-lucide="image" style="width:28px; height:28px;"></i>
-          </div>
-          <div class="news-body">
-            <div class="news-date">Dæmi — efni vantar</div>
-            <div class="news-title">Pláss fyrir aðra frétt</div>
-            <div class="news-excerpt">Innihald hér er einungis til að sýna útlit, ekki raunverulegt efni.</div>
-          </div>
-        </div>
-        <div class="news-card">
-          <div class="news-img">
-            <span class="news-tag" style="background:var(--warning); color:#4a3400;">DÆMI</span>
-            <i data-lucide="image" style="width:28px; height:28px;"></i>
-          </div>
-          <div class="news-body">
-            <div class="news-date">Dæmi — efni vantar</div>
-            <div class="news-title">Þriðja fréttakortið</div>
-            <div class="news-excerpt">Skiptu þessu út fyrir raunverulegar fréttir þegar heimild er tilbúin.</div>
-          </div>
-        </div>
+      <div class="news-grid" id="newsGrid">
+        <p style="color:var(--text-muted); font-size:13px;">Hleður fréttum...</p>
       </div>
     </section>
 
@@ -684,6 +652,54 @@
   function scrollToId(id) {
     document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
   }
+
+  /* ============ NEWS (blogg.elko.is WordPress REST API) ============ */
+  const MANUDIR = ['jan','feb','mar','apr','maí','jún','júl','ágú','sep','okt','nóv','des'];
+
+  function formatNewsDate(iso) {
+    const d = new Date(iso);
+    return `${d.getDate()}. ${MANUDIR[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  function stripHtml(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent || '').trim();
+  }
+
+  async function loadNews() {
+    const grid = document.getElementById('newsGrid');
+    try {
+      const res = await fetch('https://blogg.elko.is/wp-json/wp/v2/posts?per_page=3&_embed');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const posts = await res.json();
+
+      grid.innerHTML = posts.map(post => {
+        const img = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+        const cat = post._embedded?.['wp:term']?.[0]?.[0]?.name || 'Blogg';
+        const excerpt = stripHtml(post.excerpt?.rendered || '').slice(0, 110);
+        const title = stripHtml(post.title?.rendered || '');
+        return `
+          <a class="news-card" href="${post.link}" target="_blank" rel="noopener" style="display:block;">
+            <div class="news-img">
+              ${img ? `<img src="${img}" alt="" style="width:100%; height:100%; object-fit:cover;">` : `<i data-lucide="image" style="width:28px; height:28px;"></i>`}
+              <span class="news-tag" style="background:var(--primary);">${cat}</span>
+            </div>
+            <div class="news-body">
+              <div class="news-date">${formatNewsDate(post.date)}</div>
+              <div class="news-title">${title}</div>
+              <div class="news-excerpt">${excerpt}${excerpt.length >= 110 ? '…' : ''}</div>
+            </div>
+          </a>`;
+      }).join('');
+      lucide.createIcons();
+    } catch(e) {
+      grid.innerHTML = `<p style="color:var(--text-muted); font-size:13px;">Ekki tókst að sækja fréttir. <a href="https://blogg.elko.is/" target="_blank" rel="noopener" style="color:var(--primary); text-decoration:underline;">Skoða bloggið beint</a>.</p>`;
+      console.error(e);
+    }
+  }
+
+  loadNews();
 
   /* ============ BANKINN (reusing elko-bankinn proxy logic) ============ */
   const PROXY = 'https://lagerlr-proxy.pruins.workers.dev/api';
