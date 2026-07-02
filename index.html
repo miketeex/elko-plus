@@ -1,366 +1,910 @@
 <!DOCTYPE html>
 <html lang="is">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ELKO+</title>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELKO+</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --primary: #78A22F;
+    --primary-hover: #689326;
+    --primary-light: #A6CF54;
+
+    --bg: #F6F8FA;
+    --surface: #FFFFFF;
+    --card: #FFFFFF;
+    --hover: #F2F5F7;
+    --border: #E3E8EE;
+    --text-primary: #1D232A;
+    --text-secondary: #5C6675;
+    --text-muted: #8D96A4;
+
+    --success: #38B24A;
+    --warning: #F4B740;
+    --danger: #E05353;
+    --info: #2D9CDB;
+
+    --radius-card: 16px;
+    --radius-btn: 12px;
+    --radius-dialog: 24px;
+
+    --shadow-sm: 0 2px 6px rgba(0,0,0,.08);
+    --shadow-md: 0 8px 20px rgba(0,0,0,.12);
+    --shadow-lg: 0 18px 40px rgba(0,0,0,.18);
+
+    --sidebar-bg: #181B1F;
+    --sidebar-surface: #20242A;
+    --sidebar-hover: #2F353D;
+    --sidebar-border: #343B44;
+    --sidebar-text: #F5F7FA;
+    --sidebar-text-secondary: #B0B8C4;
+    --sidebar-muted: #7E8794;
+  }
+
+  @media (prefers-color-scheme: dark) {
     :root {
-      --elko-green: #638b2c;
-      --elko-dark: #00126b;
-      --sidebar-bg: #14171c;
-      --sidebar-text: #a8ada8;
-      --surface-page: #ffffff;
-      --surface-card: #f5f6f4;
-      --border: #e5e5e2;
-      --text-primary: #14171c;
-      --text-secondary: #666660;
-      --text-muted: #999992;
+      --bg: #181B1F;
+      --surface: #20242A;
+      --card: #262B31;
+      --hover: #2F353D;
+      --border: #343B44;
+      --text-primary: #F5F7FA;
+      --text-secondary: #B0B8C4;
+      --text-muted: #7E8794;
     }
+  }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --surface-page: #1c1f24;
-        --surface-card: #262a30;
-        --border: #363b42;
-        --text-primary: #f0f0ee;
-        --text-secondary: #b4b4ac;
-        --text-muted: #86867e;
-      }
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.5;
+    display: flex;
+    min-height: 100vh;
+  }
 
-    body {
-      font-family: 'Open Sans', sans-serif;
-      background: var(--surface-page);
-      color: var(--text-primary);
-      display: flex;
-      min-height: 100vh;
-    }
+  a { color: inherit; text-decoration: none; }
+  [data-lucide] { width: 20px; height: 20px; stroke-width: 1.8; flex-shrink: 0; }
 
-    /* Sidebar */
-    .sidebar {
-      width: 220px;
-      flex-shrink: 0;
-      background: var(--sidebar-bg);
-      padding: 24px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+  /* ============ SIDEBAR ============ */
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
 
-    .sidebar .brand {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin: 0 8px 28px;
-    }
+  .brand { display: flex; align-items: center; gap: 2px; padding: 0 8px; margin-bottom: 32px; }
+  .brand img { height: 26px; }
+  .brand .plus { color: var(--primary); font-size: 22px; font-weight: 700; }
 
-    .sidebar img.logo {
-      height: 28px;
-      display: block;
-    }
+  .nav-list { display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto; }
 
-    .sidebar .plus {
-      color: var(--elko-green);
-      font-size: 22px;
-      font-weight: 700;
-      line-height: 1;
-    }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-btn);
+    color: var(--sidebar-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
 
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      color: var(--sidebar-text);
-      font-size: 14px;
-      text-decoration: none;
-      cursor: pointer;
-    }
+  .nav-item [data-lucide] { width: 20px; height: 20px; }
 
-    .nav-item.active {
-      background: var(--elko-green);
-      color: white;
-    }
+  .nav-item.active { background: var(--primary); color: #fff; }
+  .nav-item:not(.active):hover { background: var(--sidebar-hover); color: var(--sidebar-text); }
+  .nav-item.inert { cursor: default; opacity: 0.55; }
+  .nav-item.inert:hover { background: none; color: var(--sidebar-text-secondary); }
 
-    .nav-item:not(.active):hover {
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-    }
+  .help-card {
+    background: var(--sidebar-surface);
+    border: 1px solid var(--sidebar-border);
+    border-radius: var(--radius-card);
+    padding: 20px 16px;
+    text-align: center;
+    margin-top: 16px;
+  }
 
-    /* Main */
-    .main {
-      flex: 1;
-      padding: 24px 32px 48px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      min-width: 0;
-    }
+  .help-card .icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--sidebar-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    color: var(--sidebar-text-secondary);
+  }
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+  .help-card h4 { color: var(--sidebar-text); font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .help-card p { color: var(--sidebar-muted); font-size: 12px; margin-bottom: 14px; line-height: 1.5; }
 
-    .search {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
+  .help-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-btn);
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+  }
 
-    .avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--elko-dark);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
+  .help-btn:hover { background: var(--primary-hover); }
 
-    .welcome {
-      background: #183d1e;
-      border-radius: 12px;
-      padding: 32px;
-      color: #fff;
-    }
+  /* ============ MAIN ============ */
+  .main { flex: 1; min-width: 0; max-width: 1600px; }
+  .main-inner { padding: 24px 32px 64px; }
 
-    .welcome h1 {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
+  .topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
 
-    .welcome p {
-      font-size: 14px;
-      color: #c9d6c9;
-      max-width: 460px;
-      line-height: 1.5;
-    }
+  .search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-btn);
+    padding: 10px 16px;
+    max-width: 420px;
+  }
 
-    .section-label {
-      font-size: 13px;
-      color: var(--text-secondary);
-      font-weight: 600;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
+  .search-box [data-lucide] { width: 18px; height: 18px; color: var(--text-muted); }
+  .search-box span { font-size: 14px; color: var(--text-muted); }
 
-    .tool-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-    }
+  .topbar-right { display: flex; align-items: center; gap: 16px; margin-left: auto; }
 
-    .tool-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 16px;
-      text-align: center;
-      text-decoration: none;
-      color: var(--text-primary);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      transition: border-color 0.15s;
-    }
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    position: relative;
+  }
 
-    .tool-card:hover {
-      border-color: var(--elko-green);
-    }
+  .icon-btn [data-lucide] { width: 18px; height: 18px; }
 
-    .tool-card .icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      background: rgba(99, 139, 44, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--elko-green);
-    }
+  .user-chip { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
-    .icon svg, .nav-item svg, .search svg {
-      width: 22px;
-      height: 22px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.6;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      flex-shrink: 0;
-    }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+  }
 
-    .tool-card .icon svg { width: 26px; height: 26px; }
+  .user-chip [data-lucide] { width: 16px; height: 16px; color: var(--text-muted); }
 
-    .tool-card .name {
-      font-size: 13px;
-      font-weight: 600;
-    }
+  /* Hero */
+  .hero {
+    position: relative;
+    background: #163019;
+    border-radius: var(--radius-card);
+    padding: 40px;
+    color: #fff;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
 
-    .tool-card .desc {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+  .hero h1 { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
+  .hero p { font-size: 15px; color: rgba(255,255,255,0.75); max-width: 460px; }
 
-    #toolView {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-      gap: 12px;
-      min-height: 0;
-    }
+  .hero-mark {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.9;
+  }
 
-    .tool-topbar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+  .hero-mark span:first-child { font-size: 40px; font-weight: 700; color: #fff; }
+  .hero-mark span.plus { font-size: 34px; font-weight: 700; color: var(--primary-light); }
 
-    .back-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
-      cursor: pointer;
-      font-family: 'Open Sans', sans-serif;
-    }
+  /* Section header */
+  .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+  .section-header h2 { font-size: 22px; font-weight: 700; }
+  .section-header .see-all { font-size: 13px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+  .section-header .see-all [data-lucide] { width: 14px; height: 14px; }
 
-    .back-btn:hover {
-      border-color: var(--elko-green);
-    }
+  section { margin-bottom: 40px; }
 
-    .back-btn svg {
-      width: 16px;
-      height: 16px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
+  /* Tool cards */
+  .tool-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
 
-    .tool-topbar .tool-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
+  .tool-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+  }
 
-    #toolFrame {
-      flex: 1;
-      width: 100%;
-      min-height: 600px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: white;
-    }
-  </style>
+  .tool-card:hover { box-shadow: var(--shadow-sm); transform: translateY(-2px); }
+  .tool-card.inert { opacity: 0.5; cursor: default; }
+  .tool-card.inert:hover { box-shadow: none; transform: none; }
+
+  .tool-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(120,162,47,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+  }
+
+  .tool-icon [data-lucide] { width: 22px; height: 22px; }
+
+  .tool-card .name { font-size: 15px; font-weight: 600; }
+  .tool-card .desc { font-size: 12px; color: var(--text-muted); }
+
+  /* News cards */
+  .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  .news-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .news-card:hover { box-shadow: var(--shadow-sm); }
+
+  .news-img {
+    height: 140px;
+    background: var(--hover);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  .news-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: #fff;
+  }
+
+  .news-body { padding: 16px; }
+  .news-date { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .news-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .news-excerpt { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* ============ BANKINN (embedded) ============ */
+  .bankinn-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+
+  .bankinn-tab {
+    padding: 8px 18px;
+    border-radius: var(--radius-btn);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .bankinn-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  .bankinn-page { display: none; }
+  .bankinn-page.active { display: block; }
+
+  .bankinn-filter-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+
+  .filter-pill {
+    background: var(--card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .filter-pill:hover { border-color: var(--primary); }
+
+  .cart-summary { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-secondary); }
+  .cart-summary [data-lucide] { width: 18px; height: 18px; color: var(--text-primary); }
+
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+
+  .product-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-image {
+    height: 120px;
+    background: var(--hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .product-image img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 10px; }
+
+  .stock-tag {
+    position: absolute; top: 8px; left: 8px;
+    background: rgba(0,0,0,0.7); color: #fff;
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+  }
+
+  .product-body { padding: 12px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+
+  .product-name {
+    font-weight: 600; font-size: 13px;
+    height: 34px; overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+
+  .product-sub { font-size: 11px; color: var(--text-muted); }
+
+  .qty-stepper {
+    margin-top: auto; padding-top: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    background: var(--hover); border-radius: 20px; padding: 4px;
+  }
+
+  .qty-btn { width: 24px; height: 24px; border-radius: 50%; border: none; background: var(--primary); color: #fff; font-size: 15px; line-height: 1; cursor: pointer; }
+  .qty-btn:disabled { background: var(--border); cursor: not-allowed; }
+  .qty-value { font-size: 13px; font-weight: 700; min-width: 20px; text-align: center; }
+
+  /* Bankinn wizard (reused pattern) */
+  .wizard { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 28px; max-width: 480px; margin: 0 auto; display: none; }
+  .wizard.active { display: block; }
+  .step-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+  .step-dot { width: 24px; height: 24px; border-radius: 50%; background: var(--hover); color: var(--text-muted); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .step-dot.current { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .step-dot.done { background: var(--text-primary); color: var(--surface); border-color: var(--text-primary); }
+  .step-line { flex: 1; height: 1px; background: var(--border); }
+  .wizard h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .wizard .step-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-btn);
+    font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text-primary);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); outline: none; }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .dates-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .terms-link { color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 12px; display: inline-block; margin-bottom: 8px; }
+  .check-row { display: flex; align-items: center; gap: 8px; margin: 10px 0 18px; font-size: 13px; }
+  .wizard-actions { display: flex; justify-content: space-between; gap: 10px; }
+
+  .btn { background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: var(--radius-btn); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn:hover { background: var(--primary-hover); }
+  .btn-secondary { background: var(--card); color: var(--text-primary); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--primary); }
+
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .overlay.active { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius-dialog); padding: 28px; max-width: 460px; width: 100%; max-height: 70vh; overflow-y: auto; }
+  .modal h3 { margin-bottom: 14px; }
+  .modal p { font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 12px; }
+
+  .notify { padding: 12px 18px; border-radius: var(--radius-btn); margin-bottom: 16px; font-size: 14px; display: none; }
+  .notify.success { background: rgba(56,178,74,0.12); color: #2b8a3e; border: 1px solid rgba(56,178,74,0.3); display: block; }
+  .notify.error { background: rgba(224,83,83,0.12); color: #c0392b; border: 1px solid rgba(224,83,83,0.3); display: block; }
+
+  @media (max-width: 1024px) {
+    .tool-grid { grid-template-columns: repeat(3, 1fr); }
+    .news-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .tool-grid { grid-template-columns: repeat(2, 1fr); }
+    .news-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
 
-  <div class="sidebar">
-    <div class="brand">
-      <img class="logo" src="images/ELKO_logo_SVG.svg" alt="ELKO">
-      <span class="plus">+</span>
-    </div>
-    <a class="nav-item active" href="#" onclick="closeTool(); return false;">
-      <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
-      Heim
-    </a>
-    <a class="nav-item" href="#tools">
-      <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 1-5.6 5.6l-6.4 6.4a1.5 1.5 0 0 0 2.1 2.1l6.4-6.4a4 4 0 0 1 5.6-5.6l-2.6 2.6-2-2 2.5-2.7z"/></svg>
-      Kerfi og tól
-    </a>
+<div class="sidebar">
+  <div class="brand">
+    <img src="images/ELKO_logo_SVG.svg" alt="ELKO">
+    <span class="plus">+</span>
   </div>
 
-  <div class="main">
-    <div id="homeView" style="display:flex; flex-direction:column; gap:24px; flex:1; min-width:0;">
-      <div class="topbar">
-        <div class="search">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          Leita á vefnum...
-        </div>
-        <div class="avatar">MT</div>
-      </div>
+  <div class="nav-list">
+    <a class="nav-item active" onclick="scrollToId('top')"><i data-lucide="home"></i>Heim</a>
+    <a class="nav-item" onclick="scrollToId('news')"><i data-lucide="newspaper"></i>Fréttir</a>
+    <a class="nav-item inert"><i data-lucide="user"></i>Starfsupplýsingar</a>
+    <a class="nav-item inert"><i data-lucide="calendar-check"></i>Vaktakerfi</a>
+    <a class="nav-item inert"><i data-lucide="file-text"></i>Eyðublöð</a>
+    <a class="nav-item" onclick="scrollToId('tools')"><i data-lucide="layout-grid"></i>Kerfi og tól</a>
+    <a class="nav-item inert"><i data-lucide="graduation-cap"></i>Fræðsla</a>
+    <a class="nav-item inert"><i data-lucide="wallet"></i>Launaseðlar</a>
+    <a class="nav-item inert"><i data-lucide="calendar"></i>Viðburðir</a>
+    <a class="nav-item inert"><i data-lucide="help-circle"></i>Hafa samband</a>
+  </div>
 
-      <div class="welcome">
-        <h1>Velkomin(n) í ELKO+</h1>
-        <p>Aðgangur að núverandi verkfærum ELKO á einum stað.</p>
-      </div>
+  <div class="help-card">
+    <div class="icon-circle"><i data-lucide="headphones"></i></div>
+    <h4>Þarftu hjálp?</h4>
+    <p>Við erum hér til að aðstoða þig.</p>
+    <button class="help-btn">Hafa samband</button>
+  </div>
+</div>
 
-      <div id="tools">
-        <div class="section-label">Kerfi og tól</div>
-        <div class="tool-grid">
-          <a class="tool-card" href="https://miketeex.github.io/lagerlr/" target="_blank" rel="noopener">
-            <div class="icon">
-              <svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1.5"/><path d="M9 3v3h6V3"/><path d="M9 11h6M9 15h6"/></svg>
-            </div>
-            <div class="name">Lagerleiðrétting</div>
-            <div class="desc">Tilkynna lagerfrávik</div>
-          </a>
-          <a class="tool-card" href="#" onclick="openTool('https://miketeex.github.io/elko-bankinn/?embedded=true', 'Partýlager'); return false;">
-            <div class="icon">
-              <svg viewBox="0 0 24 24"><path d="M5 20 11 9l5 3.6z"/><path d="M15 4.5l1 2M19 4l.5 2M21 8l2 .5M12 4l1 1.5"/></svg>
-            </div>
-            <div class="name">Partýlager</div>
-            <div class="desc">Bankinn</div>
-          </a>
+<div class="main" id="top">
+  <div class="main-inner">
+
+    <div class="topbar">
+      <div class="search-box">
+        <i data-lucide="search"></i>
+        <span>Leita á ELKO+...</span>
+      </div>
+      <div class="topbar-right">
+        <div class="icon-btn"><i data-lucide="bell"></i></div>
+        <div class="icon-btn"><i data-lucide="mail"></i></div>
+        <div class="user-chip">
+          <div class="avatar">MT</div>
+          <i data-lucide="chevron-down"></i>
         </div>
       </div>
     </div>
 
-    <div id="toolView">
-      <div class="tool-topbar">
-        <button class="back-btn" onclick="closeTool()">
-          <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-          Til baka
-        </button>
-        <span class="tool-title" id="toolTitle"></span>
+    <div class="hero">
+      <h1>Velkomin(n) í ELKO+</h1>
+      <p>Aðgangur að núverandi verkfærum ELKO á einum stað.</p>
+      <div class="hero-mark">
+        <span>ELKO</span><span class="plus">+</span>
       </div>
-      <iframe id="toolFrame" src="about:blank" title="Verkfæri"></iframe>
     </div>
+
+    <section id="tools">
+      <div class="section-header">
+        <h2>Kerfi og tól</h2>
+        <a class="see-all">Skoða öll kerfi og tól <i data-lucide="arrow-right"></i></a>
+      </div>
+      <div class="tool-grid">
+        <a class="tool-card" href="https://miketeex.github.io/lagerlr/" target="_blank" rel="noopener">
+          <div class="tool-icon"><i data-lucide="clipboard-list"></i></div>
+          <div class="name">Lagerleiðrétting</div>
+          <div class="desc">Tilkynna lagerfrávik</div>
+        </a>
+        <div class="tool-card" onclick="scrollToId('bankinn')">
+          <div class="tool-icon"><i data-lucide="party-popper"></i></div>
+          <div class="name">Partýlager</div>
+          <div class="desc">Bankinn</div>
+        </div>
+        <div class="tool-card inert">
+          <div class="tool-icon"><i data-lucide="calendar-clock"></i></div>
+          <div class="name">Vaktakerfi</div>
+          <div class="desc">Væntanlegt</div>
+        </div>
+        <div class="tool-card inert">
+          <div class="tool-icon"><i data-lucide="file-text"></i></div>
+          <div class="name">Eyðublöð</div>
+          <div class="desc">Væntanlegt</div>
+        </div>
+        <div class="tool-card inert">
+          <div class="tool-icon"><i data-lucide="layout-grid"></i></div>
+          <div class="name">Kerfi</div>
+          <div class="desc">Allir kerfishlekkir</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="news">
+      <div class="section-header">
+        <h2>Fréttir</h2>
+        <a class="see-all">Skoða allar fréttir <i data-lucide="arrow-right"></i></a>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div class="news-img">
+            <span class="news-tag" style="background:var(--success);">NÝTT</span>
+            <i data-lucide="image" style="width:28px; height:28px;"></i>
+          </div>
+          <div class="news-body">
+            <div class="news-date">Dæmi — efni vantar</div>
+            <div class="news-title">Fréttakerfi ekki tengt ennþá</div>
+            <div class="news-excerpt">Þessi kortarým sýnir hvernig frétt myndi líta út þegar fréttakerfi er tengt.</div>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-img">
+            <span class="news-tag" style="background:var(--info);">DÆMI</span>
+            <i data-lucide="image" style="width:28px; height:28px;"></i>
+          </div>
+          <div class="news-body">
+            <div class="news-date">Dæmi — efni vantar</div>
+            <div class="news-title">Pláss fyrir aðra frétt</div>
+            <div class="news-excerpt">Innihald hér er einungis til að sýna útlit, ekki raunverulegt efni.</div>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-img">
+            <span class="news-tag" style="background:var(--warning); color:#4a3400;">DÆMI</span>
+            <i data-lucide="image" style="width:28px; height:28px;"></i>
+          </div>
+          <div class="news-body">
+            <div class="news-date">Dæmi — efni vantar</div>
+            <div class="news-title">Þriðja fréttakortið</div>
+            <div class="news-excerpt">Skiptu þessu út fyrir raunverulegar fréttir þegar heimild er tilbúin.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="bankinn">
+      <div class="section-header">
+        <h2>Bankinn – Partýlager</h2>
+        <a class="see-all">Skoða allt í Bankanum <i data-lucide="arrow-right"></i></a>
+      </div>
+
+      <div id="bankinnNotify" class="notify"></div>
+
+      <div class="bankinn-tabs">
+        <button class="bankinn-tab active" onclick="switchBankinnPage('borrow', this)">Lána búnað</button>
+        <button class="bankinn-tab" onclick="switchBankinnPage('suggest', this)">Tillögur</button>
+      </div>
+
+      <div class="bankinn-page active" id="bankinn-page-borrow">
+
+        <div id="bankinnBrowse">
+          <div class="bankinn-filter-row" id="bankinnFilterBar">
+            <button class="filter-pill active" onclick="filterBankinnCategory('all', this)">Allt</button>
+            <div class="cart-summary">
+              <i data-lucide="shopping-cart"></i>
+              <span>Valdir hlutir: <strong id="bankinnCartCount">0</strong> – Samtals magn: <strong id="bankinnCartTotal">0</strong></span>
+              <button class="btn" onclick="goToBankinnForm()">Áfram →</button>
+            </div>
+          </div>
+
+          <div class="product-grid" id="bankinnGrid">
+            <p style="color:var(--text-muted); font-size:13px;">Hleður vörulista...</p>
+          </div>
+        </div>
+
+        <div class="wizard" id="bankinnForm">
+          <div class="step-progress">
+            <div class="step-dot current" id="bDot1">1</div>
+            <div class="step-line"></div>
+            <div class="step-dot" id="bDot2">2</div>
+          </div>
+
+          <div class="step-panel active" id="bStep1">
+            <h3>Um þig</h3>
+            <div class="step-sub">Skref 1 af 2</div>
+            <div class="field"><label>Nafn *</label><input type="text" id="bNafn" placeholder="Fullt nafn"></div>
+            <div class="field"><label>Netfang *</label><input type="email" id="bNetfang" placeholder="netfang@elko.is"></div>
+            <div class="field"><label>Símanúmer *</label><input type="tel" id="bSimi" placeholder="7 stafir"></div>
+            <div class="wizard-actions">
+              <button class="btn btn-secondary" onclick="goBackBankinn()">← Til baka</button>
+              <button class="btn" onclick="goBankinnStep(2)">Áfram →</button>
+            </div>
+          </div>
+
+          <div class="step-panel" id="bStep2">
+            <h3>Staðsetning og dagsetningar</h3>
+            <div class="step-sub">Skref 2 af 2</div>
+            <div class="field"><label>Starfsstöð *</label><select id="bStarfsstod"><option value="">-- Veldu starfsstöð --</option></select></div>
+            <div class="field"><label>Afhendingarstaður *</label><select id="bAfhending"><option value="">-- Veldu afhendingarstað --</option></select></div>
+            <div class="dates-row">
+              <div class="field"><label>Dagsetning frá *</label><input type="date" id="bFra"></div>
+              <div class="field"><label>Dagsetning til *</label><input type="date" id="bTil"></div>
+            </div>
+            <span class="terms-link" onclick="openBankinnTerms()">Lesa skilmála</span>
+            <div class="check-row"><input type="checkbox" id="bTerms"><label for="bTerms">Ég samþykki skilmála</label></div>
+            <div class="wizard-actions">
+              <button class="btn btn-secondary" onclick="goBankinnStep(1)">← Til baka</button>
+              <button class="btn" onclick="submitBankinnForm()">Sækja um</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bankinn-page" id="bankinn-page-suggest">
+        <div class="wizard active" style="max-width:none;">
+          <h3>Tillaga að nýjum búnaði</h3>
+          <div class="step-sub">Deildu hugmynd um búnað sem vantar í Bankann.</div>
+          <div class="field"><label>Nafn *</label><input type="text" id="bsNafn" placeholder="Nafn"></div>
+          <div class="field"><label>Tillaga *</label><textarea id="bsTillaga" placeholder="Lýstu því sem þú vilt sjá bætt við Bankann..."></textarea></div>
+          <button class="btn" onclick="submitBankinnSuggestion()">Senda tillögu</button>
+        </div>
+      </div>
+    </section>
+
   </div>
+</div>
 
-  <script>
-    function openTool(url, name) {
-      document.getElementById('homeView').style.display = 'none';
-      document.getElementById('toolView').style.display = 'flex';
-      document.getElementById('toolTitle').textContent = name;
-      document.getElementById('toolFrame').src = url;
-    }
+<div class="overlay" id="bankinnTermsOverlay">
+  <div class="modal">
+    <h3>Skilmálar láns</h3>
+    <p>Starfsmaður ber ábyrgð á að skila öllum lánuðum búnaði, vörum eða öðrum munum í sama ástandi og þeir voru afhentir, heilum, hreinum, fullhlöðnum eftir því sem við á og með öllum tilheyrandi fylgihlutum, innan þess tíma sem kveðið er á um í umsókn og staðfestingu láns.</p>
+    <p>Mikilvægt er að fara vel með allt sem tekið er að láni. Komi upp skemmdir sem teljast ekki eðlilegt slit eða afleiðing eðlilegrar notkunar getur starfsmaður borið ábyrgð á kostnaði vegna viðgerðar eða endurnýjunar á viðkomandi hlut.</p>
+    <p>Með því að senda inn umsókn og taka við staðfestingu á láni staðfestir starfsmaður að hann hafi kynnt sér og samþykki framangreinda skilmála.</p>
+    <button class="btn" onclick="closeBankinnTerms()">Loka</button>
+  </div>
+</div>
 
-    function closeTool() {
-      document.getElementById('toolView').style.display = 'none';
-      document.getElementById('homeView').style.display = 'flex';
-      document.getElementById('toolFrame').src = 'about:blank';
+<script>
+  lucide.createIcons();
+
+  function scrollToId(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* ============ BANKINN (reusing elko-bankinn proxy logic) ============ */
+  const PROXY = 'https://lagerlr-proxy.pruins.workers.dev/api';
+  const FLOW_GET = PROXY + '/bankinn-inventory';
+  const FLOW_POST = PROXY + '/bankinn-post';
+  const FLOW_STATIONS = PROXY + '/bankinn-stations';
+  const FLOW_CHECK = PROXY + '/bankinn-check';
+  const FLOW_SUGGEST = PROXY + '/bankinn-submit-suggestion';
+
+  let bankinnItems = [];
+  let bankinnCart = {};
+  let bankinnData = {};
+
+  function bankinnNotify(msg, type) {
+    const el = document.getElementById('bankinnNotify');
+    el.textContent = msg;
+    el.className = 'notify ' + type;
+    setTimeout(() => el.className = 'notify', 4000);
+  }
+
+  function switchBankinnPage(page, btn) {
+    document.querySelectorAll('.bankinn-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.bankinn-page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('bankinn-page-' + page).classList.add('active');
+  }
+
+  async function loadBankinnInventory() {
+    try {
+      const res = await fetch(FLOW_GET, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+      const data = await res.json();
+      bankinnItems = data.value || data;
+
+      const filterBar = document.getElementById('bankinnFilterBar');
+      const cartSummary = filterBar.querySelector('.cart-summary');
+      const categories = [...new Set(bankinnItems.map(i => i.Flokkur?.Value).filter(Boolean))];
+      let pillsHtml = `<button class="filter-pill active" onclick="filterBankinnCategory('all', this)">Allt</button>`;
+      categories.forEach(cat => {
+        pillsHtml += `<button class="filter-pill" onclick="filterBankinnCategory('${cat}', this)">${cat}</button>`;
+      });
+      filterBar.innerHTML = pillsHtml;
+      filterBar.appendChild(cartSummary);
+
+      renderBankinnGrid(bankinnItems);
+    } catch(e) {
+      document.getElementById('bankinnGrid').innerHTML = '<p style="color:var(--danger); font-size:13px;">Villa við að sækja vörulista.</p>';
+      console.error(e);
     }
-  </script>
+  }
+
+  function filterBankinnCategory(cat, btn) {
+    document.querySelectorAll('#bankinnFilterBar .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = cat === 'all' ? bankinnItems : bankinnItems.filter(i => i.Flokkur?.Value === cat);
+    renderBankinnGrid(filtered);
+  }
+
+  function renderBankinnGrid(items) {
+    const grid = document.getElementById('bankinnGrid');
+    grid.innerHTML = '';
+    items.forEach(item => {
+      const id = item.ID;
+      const name = item.Title || '';
+      const numer = item.NinjaSlushiKrapv_x00e9_l || '';
+      const magn = item.Magn || 0;
+      const img = item.MyndURL || '';
+      bankinnCart[id] = bankinnCart[id] || 0;
+      bankinnData[id] = { name, numer, magn };
+
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML = `
+        <div class="product-image">
+          ${img ? `<img src="${img}" alt="${name}">` : ''}
+          ${magn <= 0 ? '<div class="stock-tag">Ekki til</div>' : ''}
+        </div>
+        <div class="product-body">
+          <div class="product-name">${name}</div>
+          <div class="product-sub">Nr: ${numer} · Magn: ${magn}</div>
+          <div class="qty-stepper">
+            <button class="qty-btn" onclick="changeBankinnQty(${id}, -1)" ${magn <= 0 ? 'disabled' : ''}>−</button>
+            <span class="qty-value" id="bqty-${id}">${bankinnCart[id]}</span>
+            <button class="qty-btn" onclick="changeBankinnQty(${id}, 1, ${magn})" ${magn <= 0 ? 'disabled' : ''}>+</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  async function loadBankinnStations() {
+    try {
+      const res = await fetch(FLOW_STATIONS, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+      const data = await res.json();
+      const items = data.value || data;
+      const dd1 = document.getElementById('bStarfsstod');
+      const dd2 = document.getElementById('bAfhending');
+      items.forEach(item => {
+        const opt1 = document.createElement('option');
+        opt1.value = item.Title;
+        opt1.textContent = item.Title;
+        dd1.appendChild(opt1);
+        dd2.appendChild(opt1.cloneNode(true));
+      });
+    } catch(e) { console.error('Villa við að sækja starfsstöðvar', e); }
+  }
+
+  function changeBankinnQty(id, delta, max) {
+    const current = bankinnCart[id] || 0;
+    const newVal = Math.max(0, current + delta);
+    if (delta > 0 && max !== undefined && newVal > max) return;
+    bankinnCart[id] = newVal;
+    document.getElementById('bqty-' + id).textContent = newVal;
+    updateBankinnCartBar();
+  }
+
+  function updateBankinnCartBar() {
+    const count = Object.values(bankinnCart).filter(v => v > 0).length;
+    const total = Object.values(bankinnCart).reduce((a, b) => a + b, 0);
+    document.getElementById('bankinnCartCount').textContent = count;
+    document.getElementById('bankinnCartTotal').textContent = total;
+  }
+
+  function goToBankinnForm() {
+    const hasItems = Object.values(bankinnCart).some(v => v > 0);
+    if (!hasItems) { bankinnNotify('Veldu að minnsta kosti eina vöru.', 'error'); return; }
+    document.getElementById('bankinnBrowse').style.display = 'none';
+    document.getElementById('bankinnForm').classList.add('active');
+    goBankinnStep(1);
+  }
+
+  function goBackBankinn() {
+    document.getElementById('bankinnBrowse').style.display = 'block';
+    document.getElementById('bankinnForm').classList.remove('active');
+  }
+
+  function goBankinnStep(n) {
+    document.querySelectorAll('#bankinnForm .step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('bStep' + n).classList.add('active');
+    document.getElementById('bDot1').className = 'step-dot' + (n === 1 ? ' current' : ' done');
+    document.getElementById('bDot2').className = 'step-dot' + (n === 2 ? ' current' : '');
+  }
+
+  function openBankinnTerms() { document.getElementById('bankinnTermsOverlay').classList.add('active'); }
+  function closeBankinnTerms() { document.getElementById('bankinnTermsOverlay').classList.remove('active'); }
+
+  async function submitBankinnForm() {
+    const nafn = document.getElementById('bNafn').value.trim();
+    const netfang = document.getElementById('bNetfang').value.trim();
+    const simi = document.getElementById('bSimi').value.trim();
+    const starfsstod = document.getElementById('bStarfsstod').value;
+    const afhending = document.getElementById('bAfhending').value;
+    const fra = document.getElementById('bFra').value;
+    const til = document.getElementById('bTil').value;
+    const terms = document.getElementById('bTerms').checked;
+
+    if (!nafn || !netfang || !terms) { bankinnNotify('Fylla þarf út nafn, netfang og samþykkja skilmála.', 'error'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(netfang)) { bankinnNotify('Netfang er ekki gilt.', 'error'); return; }
+    if (!/^\d{7}$/.test(simi)) { bankinnNotify('Símanúmer verður að vera 7 tölustafir.', 'error'); return; }
+    if (!starfsstod) { bankinnNotify('Veldu starfsstöð.', 'error'); return; }
+    if (!afhending) { bankinnNotify('Veldu afhendingarstað.', 'error'); return; }
+    if (!fra || !til) { bankinnNotify('Veldu láns- og skiladag.', 'error'); return; }
+    if (fra > til) { bankinnNotify('Skiladagur má ekki vera á undan lánsdag.', 'error'); return; }
+
+    const selectedItems = Object.entries(bankinnCart).filter(([,v]) => v > 0);
+
+    try {
+      const checkRes = await fetch(FLOW_CHECK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ DagsetningFra: fra, DagsetningTil: til }) });
+      const conflicts = await checkRes.json();
+      const conflictData = conflicts.value || conflicts;
+      const borrowedCount = {};
+      if (Array.isArray(conflictData)) {
+        conflictData.forEach(c => { borrowedCount[c.Vara] = (borrowedCount[c.Vara] || 0) + 1; });
+      }
+
+      const unavailable = [];
+      for (const [itemId] of selectedItems) {
+        const item = bankinnData[itemId];
+        const borrowed = borrowedCount[item.name] || 0;
+        if (item.magn - borrowed <= 0) unavailable.push(item.name);
+      }
+      if (unavailable.length > 0) {
+        bankinnNotify(`Eftirfarandi vörur eru ekki tiltækar á völdum dagsetningum: ${unavailable.join(', ')}`, 'error');
+        return;
+      }
+
+      for (const [itemId] of selectedItems) {
+        const item = bankinnData[itemId];
+        await fetch(FLOW_POST, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Nafn: nafn, Netfang: netfang, Simanumer: simi, Vara: item.name, Numer: item.numer, DagsetningFra: fra, DagsetningTil: til, Starfsstod: starfsstod, Afhendingarstadur: afhending })
+        });
+      }
+
+      bankinnNotify('Pöntun móttekin!', 'success');
+      bankinnCart = {};
+      updateBankinnCartBar();
+      goBackBankinn();
+    } catch(e) {
+      bankinnNotify('Villa við að senda beiðni. Reyndu aftur.', 'error');
+      console.error(e);
+    }
+  }
+
+  async function submitBankinnSuggestion() {
+    const nafn = document.getElementById('bsNafn').value.trim();
+    const tillaga = document.getElementById('bsTillaga').value.trim();
+    if (!nafn || !tillaga) { bankinnNotify('Fylla þarf út nafn og tillögu.', 'error'); return; }
+    try {
+      await fetch(FLOW_SUGGEST, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Nafn: nafn, Tillaga: tillaga }) });
+      bankinnNotify('Takk fyrir tillöguna!', 'success');
+      document.getElementById('bsNafn').value = '';
+      document.getElementById('bsTillaga').value = '';
+    } catch(e) {
+      bankinnNotify('Villa við að senda tillögu. Reyndu aftur.', 'error');
+      console.error(e);
+    }
+  }
+
+  loadBankinnInventory();
+  loadBankinnStations();
+</script>
 
 </body>
 </html>
