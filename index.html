@@ -6,13 +6,13 @@
 <title>ELKO+</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
   :root {
     --primary: #78A22F;
     --primary-hover: #689326;
     --primary-light: #A6CF54;
-    
+
     --bg: #F6F8FA;
     --surface: #FFFFFF;
     --card: #FFFFFF;
@@ -647,7 +647,7 @@
 </div>
 
 <script>
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 
   function scrollToId(id) {
     document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
@@ -692,7 +692,7 @@
             </div>
           </a>`;
       }).join('');
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     } catch(e) {
       grid.innerHTML = `<p style="color:var(--text-muted); font-size:13px;">Ekki tókst að sækja fréttir. <a href="https://blogg.elko.is/" target="_blank" rel="noopener" style="color:var(--primary); text-decoration:underline;">Skoða bloggið beint</a>.</p>`;
       console.error(e);
