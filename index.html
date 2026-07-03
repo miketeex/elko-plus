@@ -453,9 +453,49 @@
     .tool-grid { grid-template-columns: repeat(2, 1fr); }
     .news-grid { grid-template-columns: 1fr; }
   }
+
+  /* Gatekeeper */
+  #gateOverlay {
+    position: fixed; inset: 0; z-index: 2000;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #gateOverlay .gate-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-card);
+    padding: 36px; max-width: 340px; width: 90%; text-align: center;
+  }
+  #gateOverlay .gate-icon {
+    width: 48px; height: 48px; border-radius: 50%; background: rgba(120,162,47,0.12);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--primary);
+  }
+  #gateOverlay h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  #gateOverlay p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  #gateOverlay input {
+    width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: var(--radius-btn);
+    font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text-primary); margin-bottom: 12px;
+  }
+  #gateOverlay input:focus { border-color: var(--primary); outline: none; }
+  #gateOverlay button {
+    width: 100%; background: var(--primary); color: #fff; border: none; padding: 11px; border-radius: var(--radius-btn);
+    font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  #gateOverlay button:hover { background: var(--primary-hover); }
+  #gateOverlay .gate-error { color: var(--danger, #E05353); font-size: 12px; margin-top: 10px; display: none; }
+  body.gate-locked > *:not(#gateOverlay) { display: none !important; }
 </style>
 </head>
 <body>
+
+<div id="gateOverlay">
+  <div class="gate-card">
+    <div class="gate-icon"><i data-lucide="lock"></i></div>
+    <h2>ELKO+ er í vinnslu</h2>
+    <p>Sláðu inn lykilorð til að halda áfram.</p>
+    <input type="password" id="gatePassword" placeholder="Lykilorð" onkeydown="if(event.key==='Enter') checkGatePassword()">
+    <button onclick="checkGatePassword()">Halda áfram</button>
+    <p class="gate-error" id="gateError">Rangt lykilorð.</p>
+  </div>
+</div>
 
 <div class="sidebar">
   <div class="brand">
@@ -647,6 +687,34 @@
 </div>
 
 <script>
+  (function() {
+    const GATE_HASH = '8c23741ee32dd466f108702428babd6376e46588bfd91d0075699afc76216c4a';
+
+    async function sha256(text) {
+      const data = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    if (sessionStorage.getItem('elkoPlusUnlocked') === 'true') {
+      document.getElementById('gateOverlay').style.display = 'none';
+    } else {
+      document.body.classList.add('gate-locked');
+    }
+
+    window.checkGatePassword = async function() {
+      const val = document.getElementById('gatePassword').value;
+      const hash = await sha256(val);
+      if (hash === GATE_HASH) {
+        sessionStorage.setItem('elkoPlusUnlocked', 'true');
+        document.body.classList.remove('gate-locked');
+        document.getElementById('gateOverlay').style.display = 'none';
+      } else {
+        document.getElementById('gateError').style.display = 'block';
+      }
+    };
+  })();
+
   if (window.lucide) lucide.createIcons();
 
   function scrollToId(id) {
