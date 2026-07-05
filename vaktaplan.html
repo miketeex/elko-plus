@@ -284,6 +284,9 @@ function nameBadges(ini){
 }
 function isShortenedShift(v){
   if(!v) return false;
+  const s=String(v).trim();
+  if(!/\d/.test(s)) return false;
+  const m=s.match(/(\d{1,4})-(\d{1,4})/);
   if(!m) return false;
   function toMinutes(part){
     if(part.length<=2) return parseInt(part,10)*60;
