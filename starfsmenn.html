@@ -99,6 +99,7 @@ tbody tr:hover td{background:var(--soft)}
     <div class="brand">ELKO<b>+</b></div>
     <div class="title"><h1>Starfsmannayfirlit</h1><p>Tímabil: <span id="periodLabel"></span> · byggt á tímaskráningum</p></div>
     <div class="top-actions">
+      <a class="btn" href="elko-vaktaplan-standalone.html" style="text-decoration:none"><i data-lucide="calendar-days"></i><span> Vaktaplan</span></a>
       <select id="periodSelect" onchange="onPeriodChange()" style="border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;padding:9px 10px;font-weight:700;font-size:12px"></select>
       <input type="file" id="importFile" accept=".xlsx" style="display:none" onchange="handleImportFile(event)">
       <button class="btn primary" onclick="document.getElementById('importFile').click()"><i data-lucide="upload"></i><span> Flytja inn gögn</span></button>
