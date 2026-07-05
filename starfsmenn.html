@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="is"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Starfsmannayfirlit - ELKO Skeifan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+:root{--primary:#78A22F;--primary2:#A6CF54;--bg:#F5F7FA;--surface:#fff;--card:#fff;--soft:#F0F3F6;--border:#DDE4EA;--text:#17202A;--muted:#667281;--muted2:#8B96A3;--red:#E05353;--amber:#F4B740;--green:#38B24A;--blue:#2D9CDB;--purple:#8B5CF6;--shadow:0 18px 45px rgba(21,32,43,.10);--radius:18px}
+[data-theme="dark"]{--bg:#14171B;--surface:#1D2228;--card:#232A31;--soft:#2B333C;--border:#39434E;--text:#F5F7FA;--muted:#B1BAC6;--muted2:#7F8996;--shadow:0 18px 45px rgba(0,0,0,.35)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+button,input,select{font-family:inherit}[data-lucide]{width:18px;height:18px;stroke-width:2}
+.app{min-height:100vh}
+.top{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+.brand{font-weight:800;font-size:20px;letter-spacing:-.04em}.brand b{color:var(--primary)}
+.top .title h1{font-size:16px;margin:0}
+.top .title p{margin:0;color:var(--muted);font-size:11px}
+.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn,.icon-btn{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:12px;padding:9px 13px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-weight:800;font-size:12px}
+.icon-btn{width:38px;height:38px;padding:0;justify-content:center}
+.wrap{max-width:1200px;margin:0 auto;padding:22px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.kpi-card .num{font-size:24px;font-weight:900}
+.kpi-card .lbl{color:var(--muted);font-size:11px;margin-top:2px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.controls{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.controls input,.controls select{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;padding:9px 12px;font-size:13px}
+.controls input{flex:1;min-width:180px}
+.table-scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{color:var(--muted);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--soft)}
+.name-cell{display:flex;align-items:center;gap:8px}
+.avatar{width:26px;height:26px;border-radius:9px;background:var(--soft);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--muted);flex:0 0 auto}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800}
+.badge.ok{background:rgba(56,178,74,.14);color:var(--green)}
+.badge.warn{background:rgba(244,183,64,.18);color:#B7791F}
+.badge.bad{background:rgba(224,83,83,.14);color:var(--red)}
+.badge.neutral{background:var(--soft);color:var(--muted)}
+.dept-dot{width:8px;height:8px;border-radius:999px;display:inline-block;margin-right:6px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
+.modal.show{display:flex}
+.modal-card{width:min(640px,94vw);max-height:90vh;overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--soft);border-radius:14px;padding:12px}
+.stat .num{font-weight:800;font-size:18px}
+.stat .lbl{color:var(--muted);font-size:10px;margin-top:2px}
+.day-list{display:grid;gap:6px;max-height:320px;overflow:auto}
+.day-row{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:8px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;font-size:12px}
+.day-row.late{border-color:rgba(244,183,64,.5);background:rgba(244,183,64,.08)}
+.day-row.sick{border-color:rgba(224,83,83,.4);background:rgba(224,83,83,.06)}
+.hint{color:var(--muted);font-size:11px}
+#gateScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.gate-card{width:min(380px,92vw);background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:32px 28px;text-align:center}
+.gate-card .brand{font-size:24px;margin-bottom:4px}
+.gate-card p{color:var(--muted);font-size:13px;margin:0 0 20px}
+.gate-card input{width:100%;box-sizing:border-box;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;padding:12px 14px;font-size:14px;text-align:center;margin-bottom:12px}
+.gate-card button{width:100%;border:0;background:var(--primary);color:white;border-radius:12px;padding:12px 14px;font-weight:800;font-size:14px;cursor:pointer}
+.gate-error{color:var(--red);font-size:12px;font-weight:700;margin-top:10px;min-height:16px}
+.app-hidden{display:none!important}
+@media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr}.summary-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){
+  .top .title p{display:none}
+  .wrap{padding:12px}
+  .kpi-row{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi-card{padding:12px}
+  .kpi-card .num{font-size:18px}
+  .panel{padding:12px}
+  table{font-size:11px}
+  th,td{padding:7px 8px}
+  .modal-card{padding:14px}
+  .summary-grid{grid-template-columns:1fr 1fr!important}
+}
+</style></head><body>
+<div id="gateScreen"><div class="gate-card">
+  <div class="brand">ELKO<b>+</b></div>
+  <p>Sláðu inn aðgangsorð til að skoða starfsmannayfirlitið</p>
+  <input type="password" id="gatePassword" placeholder="Aðgangsorð" onkeydown="if(event.key==='Enter')checkGatePassword()">
+  <button onclick="checkGatePassword()">Opna</button>
+  <div class="gate-error" id="gateError"></div>
+</div></div>
+<div class="app app-hidden" id="app">
+  <div class="top">
+    <div class="brand">ELKO<b>+</b></div>
+    <div class="title"><h1>Starfsmannayfirlit</h1><p>Tímabil: <span id="periodLabel"></span> · byggt á tímaskráningum</p></div>
+    <div class="top-actions">
+      <button class="icon-btn" onclick="toggleTheme()"><i data-lucide="moon"></i></button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="kpi-row" id="kpiRow"></div>
+    <div class="panel">
+      <div class="controls">
+        <input id="q" oninput="renderTable()" placeholder="Leita að nafni, skammstöfun eða deild...">
+        <select id="deptFilter" onchange="renderTable()"><option value="">Allar deildir</option></select>
+        <select id="sortField" onchange="renderTable()">
+          <option value="name">Raða: Nafn</option>
+          <option value="lateCount">Raða: Seinkomur</option>
+          <option value="sickTotal">Raða: Veikindi</option>
+          <option value="age">Raða: Aldur</option>
+          <option value="seniorityMonths">Raða: Starfsaldur</option>
+          <option value="workedDays">Raða: Unnir dagar</option>
+        </select>
+      </div>
+      <div class="table-scroll">
+        <table id="staffTable">
+          <thead><tr>
+            <th>Nafn</th><th>Deild</th><th>Aldur</th><th>Starfsaldur</th><th>Unnir dagar</th><th>Seinkomur</th><th>Veikindi</th><th>Launalaust</th>
+          </tr></thead>
+          <tbody id="staffBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:14px">Nöfn eru feik (mockup) þar til alvöru gögn eru tengd. Kennitölur eru aldrei geymdar — aldur er reiknaður og kennitalan hent strax á eftir. Starfsaldur er áætlaður út frá fyrstu skráningu í vaktaplansgögnum (frá jan. 2023) og gæti verið lengri í raun.</div>
+  </div>
+</div>
+<div class="modal" id="detailModal"><div class="modal-card">
+  <div class="modal-head"><div><h2 id="detailTitle" style="margin:0"></h2><div class="hint" id="detailSub"></div></div></div>
+  <div class="summary-grid" id="detailKpis"></div>
+  <h3 style="margin:0 0 8px">Dagar tímabilsins</h3>
+  <div class="day-list" id="detailDays"></div>
+</div></div>
+<script>
+let STAFF=[];
+const GATE_HASH = "9a4c64fdc09b8c9be5190778810059db04ffa478865e6d55986bd02f14ac182d"; // sama og vaktaplan: elko2026 - breyttu fyrir alvöru notkun
+const GATE_SESSION_KEY = "elko_staff_overview_auth";
+const DATA_URL = "staff_overview.json";
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+async function sha256Hex(text){const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+async function checkGatePassword(){
+  const val=document.getElementById('gatePassword').value;
+  const errBox=document.getElementById('gateError');
+  if(!val){errBox.textContent='Sláðu inn aðgangsorð.';return;}
+  const hash=await sha256Hex(val);
+  if(hash===GATE_HASH){sessionStorage.setItem(GATE_SESSION_KEY,'1');unlockApp();}
+  else{errBox.textContent='Rangt aðgangsorð, reyndu aftur.';document.getElementById('gatePassword').value='';document.getElementById('gatePassword').focus();}
+}
+async function unlockApp(){
+  document.getElementById('gateScreen').style.display='none';
+  document.getElementById('app').classList.remove('app-hidden');
+  try{
+    const res=await fetch(DATA_URL,{cache:'no-cache'});
+    if(res.ok) STAFF=await res.json();
+  }catch(e){console.warn('Gat ekki sótt staff_overview.json',e);}
+  init();
+}
+if(sessionStorage.getItem(GATE_SESSION_KEY)==='1') unlockApp();
+
+function toggleTheme(){const app=document.getElementById('app');app.dataset.theme=app.dataset.theme==='dark'?'light':'dark'}
+
+const DEPT_COLORS={'HOME':'#2D9CDB','Sf HOME':'#2D9CDB','Svæðisstjóri HOME':'#2D9CDB','Sölufulltrúi TECH':'#8B5CF6','Svæðisstjóri TECH':'#8B5CF6','Þf.':'#38B24A','Svæðisstjóri Þjónustudeild':'#38B24A','Lager':'#F4B740','KnowHow':'#E05353','Verslunarstjóri':'#78A22F'};
+function deptColor(d){return DEPT_COLORS[d]||'#78A22F'}
+
+let sortField='name';
+
+function init(){
+  const depts=[...new Set(STAFF.map(e=>e.dept).filter(Boolean))].sort();
+  const sel=document.getElementById('deptFilter');
+  sel.innerHTML='<option value="">Allar deildir</option>'+depts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+  if(STAFF.length){
+    document.getElementById('periodLabel').textContent=`${STAFF[0].periodStart} – ${STAFF[0].periodEnd}`;
+  }
+  renderKpis();
+  renderTable();
+  lucide.createIcons();
+}
+
+function renderKpis(){
+  const totalWorked=STAFF.reduce((a,e)=>a+e.workedDays,0);
+  const totalLate=STAFF.reduce((a,e)=>a+e.lateCount,0);
+  const totalSick=STAFF.reduce((a,e)=>a+e.sickTotal,0);
+  const ages=STAFF.map(e=>e.age).filter(a=>a!=null);
+  const avgAge=ages.length?(ages.reduce((a,b)=>a+b,0)/ages.length):0;
+  document.getElementById('kpiRow').innerHTML=`
+    <div class="kpi-card"><div class="num">${STAFF.length}</div><div class="lbl">Starfsmenn í yfirliti</div></div>
+    <div class="kpi-card"><div class="num">${totalLate}</div><div class="lbl">Seinkomur samtals (${totalWorked?Math.round(totalLate/totalWorked*100):0}% af unnum dögum)</div></div>
+    <div class="kpi-card"><div class="num">${totalSick}</div><div class="lbl">Veikindaskráningar samtals</div></div>
+    <div class="kpi-card"><div class="num">${avgAge.toFixed(1)}</div><div class="lbl">Meðalaldur</div></div>
+  `;
+}
+
+function sickBadge(e){
+  if(e.sickTotal===0) return '<span class="badge ok">0</span>';
+  const parts=[];
+  if(e.sick.stadfest) parts.push(e.sick.stadfest+' staðfest');
+  if(e.sick.barn) parts.push(e.sick.barn+' barn');
+  if(e.sick.ostadfest) parts.push(e.sick.ostadfest+' óstaðf.');
+  const cls=e.sickTotal>=3?'bad':'warn';
+  return `<span class="badge ${cls}" title="${esc(parts.join(', '))}">${e.sickTotal}</span>`;
+}
+function lateBadge(e){
+  if(e.lateCount===0) return '<span class="badge ok">0</span>';
+  const cls=e.lateCount>=4?'bad':(e.lateCount>=2?'warn':'neutral');
+  return `<span class="badge ${cls}" title="${e.lateMinutesTotal} mín. samtals">${e.lateCount}</span>`;
+}
+function seniorityLabel(months){
+  if(months==null) return '<span class="hint">—</span>';
+  if(months<12) return `${months} mán.`;
+  const y=Math.floor(months/12), m=months%12;
+  return m?`${y} ár ${m} mán.`:`${y} ár`;
+}
+
+function renderTable(){
+  const q=document.getElementById('q').value.toLowerCase();
+  const dept=document.getElementById('deptFilter').value;
+  sortField=document.getElementById('sortField').value;
+  let rows=STAFF.filter(e=>(!dept||e.dept===dept)&&(!q||(e.name+' '+e.initials+' '+e.dept).toLowerCase().includes(q)));
+  rows=rows.slice().sort((a,b)=>{
+    if(sortField==='name') return a.name.localeCompare(b.name);
+    const av=a[sortField]??-1, bv=b[sortField]??-1;
+    return bv-av;
+  });
+  document.getElementById('staffBody').innerHTML=rows.map(e=>`
+    <tr onclick="openDetail('${esc(e.initials)}')">
+      <td><div class="name-cell"><span class="avatar">${esc(e.initials)}</span><b>${esc(e.name)}</b></div></td>
+      <td><span class="dept-dot" style="background:${deptColor(e.dept)}"></span>${esc(e.dept||'—')}</td>
+      <td>${e.age??'—'}</td>
+      <td>${seniorityLabel(e.seniorityMonths)}</td>
+      <td>${e.workedDays}</td>
+      <td>${lateBadge(e)}</td>
+      <td>${sickBadge(e)}</td>
+      <td>${e.unpaid||0}</td>
+    </tr>
+  `).join('')||'<tr><td colspan="8" class="hint">Engir starfsmenn fundust.</td></tr>';
+}
+
+function openDetail(ini){
+  const e=STAFF.find(x=>x.initials===ini);
+  if(!e) return;
+  document.getElementById('detailTitle').textContent=e.name;
+  document.getElementById('detailSub').innerHTML=`${esc(e.dept||'')} · Aldur ${e.age??'—'} · Starfsaldur ${seniorityLabel(e.seniorityMonths)} (áætlað)`;
+  document.getElementById('detailKpis').innerHTML=`
+    <div class="stat"><div class="num">${e.workedDays}</div><div class="lbl">Unnir dagar</div></div>
+    <div class="stat"><div class="num">${e.lateCount}</div><div class="lbl">Seinkomur (${e.lateMinutesTotal} mín.)</div></div>
+    <div class="stat"><div class="num">${e.sickTotal}</div><div class="lbl">Veikindi samtals</div></div>
+  `;
+  const days=(e.days||[]).filter(d=>d.adgerd);
+  document.getElementById('detailDays').innerHTML=days.map(d=>{
+    const isSick=['VFL','VEB','VEIKÓST'].includes(d.adgerd);
+    return `<div class="day-row ${d.late?'late':''} ${isSick?'sick':''}">
+      <div><b>${esc(d.date.slice(8,10))}.${esc(d.date.slice(5,7))}</b></div>
+      <div>${esc(d.adgerd)}${d.dept?' · '+esc(d.dept):''}${d.skipulag?' · áætlað '+esc(d.skipulag):''}${d.vidvera?' · raun '+esc(d.vidvera):''}</div>
+      <div>${d.late?`<span class="badge warn">+${d.lateMin} mín</span>`:''}</div>
+    </div>`;
+  }).join('')||'<div class="hint">Engar skráningar.</div>';
+  document.getElementById('detailModal').classList.add('show');
+  lucide.createIcons();
+}
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('show'); });
+});
+</script>
+</body></html>
