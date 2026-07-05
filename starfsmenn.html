@@ -90,7 +90,7 @@ tbody tr:hover td{background:var(--soft)}
 <div id="gateScreen"><div class="gate-card">
   <div class="brand">ELKO<b>+</b></div>
   <p>Sláðu inn aðgangsorð til að skoða starfsmannayfirlitið</p>
-  <input type="password" id="gatePassword" placeholder="Aðgangsorð" onkeydown="if(event.key===\'Enter\')checkGatePassword()">
+  <input type="password" id="gatePassword" placeholder="Aðgangsorð" onkeydown="if(event.key==='Enter')checkGatePassword()">
   <button onclick="checkGatePassword()">Opna</button>
   <div class="gate-error" id="gateError"></div>
 </div></div>
@@ -101,7 +101,7 @@ tbody tr:hover td{background:var(--soft)}
     <div class="top-actions">
       <select id="periodSelect" onchange="onPeriodChange()" style="border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;padding:9px 10px;font-weight:700;font-size:12px"></select>
       <input type="file" id="importFile" accept=".xlsx" style="display:none" onchange="handleImportFile(event)">
-      <button class="btn primary" onclick="document.getElementById(\'importFile\').click()"><i data-lucide="upload"></i><span> Flytja inn gögn</span></button>
+      <button class="btn primary" onclick="document.getElementById('importFile').click()"><i data-lucide="upload"></i><span> Flytja inn gögn</span></button>
       <button class="icon-btn" onclick="toggleTheme()"><i data-lucide="moon"></i></button>
     </div>
   </div>
@@ -116,14 +116,14 @@ tbody tr:hover td{background:var(--soft)}
       <div class="table-scroll">
         <table id="staffTable">
           <thead><tr>
-            <th data-field="name" onclick="setSort(\'name\')">Nafn <span class="arrow">▲</span></th>
-            <th data-field="dept" onclick="setSort(\'dept\')">Deild <span class="arrow">▲</span></th>
-            <th data-field="age" onclick="setSort(\'age\')">Aldur <span class="arrow">▲</span></th>
-            <th data-field="seniorityMonths" onclick="setSort(\'seniorityMonths\')">Starfsaldur <span class="arrow">▲</span></th>
-            <th data-field="workedDays" onclick="setSort(\'workedDays\')">Unnir dagar <span class="arrow">▲</span></th>
-            <th data-field="lateCount" onclick="setSort(\'lateCount\')">Seinkomur <span class="arrow">▲</span></th>
-            <th data-field="sickTotal" onclick="setSort(\'sickTotal\')">Veikindi <span class="arrow">▲</span></th>
-            <th data-field="unpaid" onclick="setSort(\'unpaid\')">Launalaust <span class="arrow">▲</span></th>
+            <th data-field="name" onclick="setSort('name')">Nafn <span class="arrow">▲</span></th>
+            <th data-field="dept" onclick="setSort('dept')">Deild <span class="arrow">▲</span></th>
+            <th data-field="age" onclick="setSort('age')">Aldur <span class="arrow">▲</span></th>
+            <th data-field="seniorityMonths" onclick="setSort('seniorityMonths')">Starfsaldur <span class="arrow">▲</span></th>
+            <th data-field="workedDays" onclick="setSort('workedDays')">Unnir dagar <span class="arrow">▲</span></th>
+            <th data-field="lateCount" onclick="setSort('lateCount')">Seinkomur <span class="arrow">▲</span></th>
+            <th data-field="sickTotal" onclick="setSort('sickTotal')">Veikindi <span class="arrow">▲</span></th>
+            <th data-field="unpaid" onclick="setSort('unpaid')">Launalaust <span class="arrow">▲</span></th>
           </tr></thead>
           <tbody id="staffBody"></tbody>
         </table>
