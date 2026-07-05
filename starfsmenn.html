@@ -3,6 +3,7 @@
 <title>Starfsmannayfirlit - ELKO Skeifan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{--primary:#78A22F;--primary2:#A6CF54;--bg:#F5F7FA;--surface:#fff;--card:#fff;--soft:#F0F3F6;--border:#DDE4EA;--text:#17202A;--muted:#667281;--muted2:#8B96A3;--red:#E05353;--amber:#F4B740;--green:#38B24A;--blue:#2D9CDB;--purple:#8B5CF6;--shadow:0 18px 45px rgba(21,32,43,.10);--radius:18px}
 [data-theme="dark"]{--bg:#14171B;--surface:#1D2228;--card:#232A31;--soft:#2B333C;--border:#39434E;--text:#F5F7FA;--muted:#B1BAC6;--muted2:#7F8996;--shadow:0 18px 45px rgba(0,0,0,.35)}
@@ -13,15 +14,19 @@ button,input,select{font-family:inherit}[data-lucide]{width:18px;height:18px;str
 .brand{font-weight:800;font-size:20px;letter-spacing:-.04em}.brand b{color:var(--primary)}
 .top .title h1{font-size:16px;margin:0}
 .top .title p{margin:0;color:var(--muted);font-size:11px}
-.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .btn,.icon-btn{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:12px;padding:9px 13px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-weight:800;font-size:12px}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
 .icon-btn{width:38px;height:38px;padding:0;justify-content:center}
 .wrap{max-width:1200px;margin:0 auto;padding:22px}
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
-.kpi-card .num{font-size:24px;font-weight:900}
+.kpi-card .num{font-size:22px;font-weight:900;display:flex;align-items:center;gap:6px}
 .kpi-card .lbl{color:var(--muted);font-size:11px;margin-top:2px}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.delta{font-size:11px;font-weight:900;padding:2px 7px;border-radius:999px;background:var(--soft)}
+.delta.up{color:var(--red)}.delta.down{color:var(--green)}.delta.flat{color:var(--muted)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.panel h3{margin:0 0 10px;font-size:14px}
 .controls{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
 .controls input,.controls select{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;padding:9px 12px;font-size:13px}
 .controls input{flex:1;min-width:180px}
@@ -30,6 +35,8 @@ table{border-collapse:collapse;width:100%;font-size:12.5px}
 th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
 th{color:var(--muted);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none}
 th:hover{color:var(--text)}
+th .arrow{opacity:.4;margin-left:3px}
+th.active .arrow{opacity:1;color:var(--primary)}
 tbody tr{cursor:pointer}
 tbody tr:hover td{background:var(--soft)}
 .name-cell{display:flex;align-items:center;gap:8px}
@@ -39,6 +46,7 @@ tbody tr:hover td{background:var(--soft)}
 .badge.warn{background:rgba(244,183,64,.18);color:#B7791F}
 .badge.bad{background:rgba(224,83,83,.14);color:var(--red)}
 .badge.neutral{background:var(--soft);color:var(--muted)}
+.sick-chip{display:inline-flex;gap:6px;font-size:10px;color:var(--muted);margin-left:6px}
 .dept-dot{width:8px;height:8px;border-radius:999px;display:inline-block;margin-right:6px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
 .modal.show{display:flex}
@@ -48,37 +56,41 @@ tbody tr:hover td{background:var(--soft)}
 .stat{background:var(--soft);border-radius:14px;padding:12px}
 .stat .num{font-weight:800;font-size:18px}
 .stat .lbl{color:var(--muted);font-size:10px;margin-top:2px}
-.day-list{display:grid;gap:6px;max-height:320px;overflow:auto}
-.day-row{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:8px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;font-size:12px}
+.day-list{display:grid;gap:6px;max-height:340px;overflow:auto}
+.day-row{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;font-size:12px}
 .day-row.late{border-color:rgba(244,183,64,.5);background:rgba(244,183,64,.08)}
 .day-row.sick{border-color:rgba(224,83,83,.4);background:rgba(224,83,83,.06)}
+.day-row .dr-top{display:grid;grid-template-columns:60px 1fr auto;align-items:center;gap:8px}
+.day-row .dr-comment{margin-top:5px;padding-top:5px;border-top:1px dashed var(--border);color:var(--muted);font-size:11px}
 .hint{color:var(--muted);font-size:11px}
 #gateScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
 .gate-card{width:min(380px,92vw);background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:32px 28px;text-align:center}
 .gate-card .brand{font-size:24px;margin-bottom:4px}
 .gate-card p{color:var(--muted);font-size:13px;margin:0 0 20px}
 .gate-card input{width:100%;box-sizing:border-box;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;padding:12px 14px;font-size:14px;text-align:center;margin-bottom:12px}
-.gate-card button{width:100%;border:0;background:var(--primary);color:white;border-radius:12px;padding:12px 14px;font-weight:800;font-size:14px;cursor:pointer}
+.gate-card button{width:100%;border:0;background:var(--primary);color:#fff;border-radius:12px;padding:12px 14px;font-weight:800;font-size:14px;cursor:pointer}
 .gate-error{color:var(--red);font-size:12px;font-weight:700;margin-top:10px;min-height:16px}
 .app-hidden{display:none!important}
+.import-note{font-size:11px;color:var(--muted);margin-top:8px}
 @media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr}.summary-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){
   .top .title p{display:none}
   .wrap{padding:12px}
   .kpi-row{grid-template-columns:1fr 1fr;gap:8px}
   .kpi-card{padding:12px}
-  .kpi-card .num{font-size:18px}
+  .kpi-card .num{font-size:16px}
   .panel{padding:12px}
   table{font-size:11px}
   th,td{padding:7px 8px}
   .modal-card{padding:14px}
   .summary-grid{grid-template-columns:1fr 1fr!important}
+  .btn span{display:none}
 }
 </style></head><body>
 <div id="gateScreen"><div class="gate-card">
   <div class="brand">ELKO<b>+</b></div>
   <p>Sláðu inn aðgangsorð til að skoða starfsmannayfirlitið</p>
-  <input type="password" id="gatePassword" placeholder="Aðgangsorð" onkeydown="if(event.key==='Enter')checkGatePassword()">
+  <input type="password" id="gatePassword" placeholder="Aðgangsorð" onkeydown="if(event.key===\'Enter\')checkGatePassword()">
   <button onclick="checkGatePassword()">Opna</button>
   <div class="gate-error" id="gateError"></div>
 </div></div>
@@ -87,47 +99,64 @@ tbody tr:hover td{background:var(--soft)}
     <div class="brand">ELKO<b>+</b></div>
     <div class="title"><h1>Starfsmannayfirlit</h1><p>Tímabil: <span id="periodLabel"></span> · byggt á tímaskráningum</p></div>
     <div class="top-actions">
+      <select id="periodSelect" onchange="onPeriodChange()" style="border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;padding:9px 10px;font-weight:700;font-size:12px"></select>
+      <input type="file" id="importFile" accept=".xlsx" style="display:none" onchange="handleImportFile(event)">
+      <button class="btn primary" onclick="document.getElementById(\'importFile\').click()"><i data-lucide="upload"></i><span> Flytja inn gögn</span></button>
       <button class="icon-btn" onclick="toggleTheme()"><i data-lucide="moon"></i></button>
     </div>
   </div>
   <div class="wrap">
     <div class="kpi-row" id="kpiRow"></div>
+    <div class="panel" id="comparePanel"></div>
     <div class="panel">
       <div class="controls">
         <input id="q" oninput="renderTable()" placeholder="Leita að nafni, skammstöfun eða deild...">
         <select id="deptFilter" onchange="renderTable()"><option value="">Allar deildir</option></select>
-        <select id="sortField" onchange="renderTable()">
-          <option value="name">Raða: Nafn</option>
-          <option value="lateCount">Raða: Seinkomur</option>
-          <option value="sickTotal">Raða: Veikindi</option>
-          <option value="age">Raða: Aldur</option>
-          <option value="seniorityMonths">Raða: Starfsaldur</option>
-          <option value="workedDays">Raða: Unnir dagar</option>
-        </select>
       </div>
       <div class="table-scroll">
         <table id="staffTable">
           <thead><tr>
-            <th>Nafn</th><th>Deild</th><th>Aldur</th><th>Starfsaldur</th><th>Unnir dagar</th><th>Seinkomur</th><th>Veikindi</th><th>Launalaust</th>
+            <th data-field="name" onclick="setSort(\'name\')">Nafn <span class="arrow">▲</span></th>
+            <th data-field="dept" onclick="setSort(\'dept\')">Deild <span class="arrow">▲</span></th>
+            <th data-field="age" onclick="setSort(\'age\')">Aldur <span class="arrow">▲</span></th>
+            <th data-field="seniorityMonths" onclick="setSort(\'seniorityMonths\')">Starfsaldur <span class="arrow">▲</span></th>
+            <th data-field="workedDays" onclick="setSort(\'workedDays\')">Unnir dagar <span class="arrow">▲</span></th>
+            <th data-field="lateCount" onclick="setSort(\'lateCount\')">Seinkomur <span class="arrow">▲</span></th>
+            <th data-field="sickTotal" onclick="setSort(\'sickTotal\')">Veikindi <span class="arrow">▲</span></th>
+            <th data-field="unpaid" onclick="setSort(\'unpaid\')">Launalaust <span class="arrow">▲</span></th>
           </tr></thead>
           <tbody id="staffBody"></tbody>
         </table>
       </div>
     </div>
-    <div class="hint" style="margin-top:14px">Nöfn eru feik (mockup) þar til alvöru gögn eru tengd. Kennitölur eru aldrei geymdar — aldur er reiknaður og kennitalan hent strax á eftir. Starfsaldur er áætlaður út frá fyrstu skráningu í vaktaplansgögnum (frá jan. 2023) og gæti verið lengri í raun.</div>
+    <div class="hint">Nöfn eru feik (mockup) þar til alvöru gögn eru tengd. Kennitölur eru aldrei geymdar — aldur er reiknaður og kennitalan hent strax á eftir, líka við innflutning beint í vafra. Starfsaldur er áætlaður út frá fyrstu skráningu í vaktaplansgögnum (frá jan. 2023) og gæti verið lengri í raun.</div>
+    <div class="import-note">Innflutningur keyrir alfarið í vafranum þínum — Excel-skjalið er aldrei sent neitt. Nafnapörun er gerð með dulkóðuðu (SHA-256) samanburði, aldrei með nöfnunum sjálfum.</div>
   </div>
 </div>
 <div class="modal" id="detailModal"><div class="modal-card">
   <div class="modal-head"><div><h2 id="detailTitle" style="margin:0"></h2><div class="hint" id="detailSub"></div></div></div>
   <div class="summary-grid" id="detailKpis"></div>
-  <h3 style="margin:0 0 8px">Dagar tímabilsins</h3>
+  <h3>Dagar tímabilsins</h3>
   <div class="day-list" id="detailDays"></div>
 </div></div>
 <script>
-let STAFF=[];
-const GATE_HASH = "9a4c64fdc09b8c9be5190778810059db04ffa478865e6d55986bd02f14ac182d"; // sama og vaktaplan: elko2026 - breyttu fyrir alvöru notkun
+
+// ---- Innfelld gögn: SHA-256(fullt nafn) -> skammstöfun, og feik nöfn/símanúmer per skammstöfun ----
+// Alvöru nöfn eru ALDREI geymd í þessari skrá - aðeins óafturkræf hök (hashes).
+const NAME_HASH_TO_INITIALS = {"d8f2da3b341a1017d7b0854340b8f0ca496f840e7d888a1d46579852664e2f82":"AIJ","b036af6f93b94e87f47ae52243d66bd205092ae0c8f6e33f5af1658fe9504f67":"AVD","85dd63c4ac39ba318f2477cad8b66b74da5de8c775911df0a3b90343d15efa44":"ASM","caf0818c3402c3aca3ad618908910279c605579f1ce0b22e8cb8b9892cdba0b4":"D\u00d6A","5bd61d9044a1567a40833764ee11399490d182e11416ae4e055cd904540a7c1d":"IAI","3d9ed7357b606d7c9287931e83350dbd313f164abfe4479d6b5dc3c8f15a034c":"IBD","2fab13fd9b921d0da832523dce200f15fd2f1daf181d9f7551b59e6fb8e6523f":"JJH","7c6d3e3ce086b77d7f2245dfd3e95492733d1d86449a0cd00a53c82ed67bcc27":"JBJ","1d371a62151be252cdcbc5a4aea2a0509dd98858fd3d53f33d30f37cad922610":"JKJ","a501a407a59b65fd8234e083b0f916affec8ed72e9573c5ae2c00bd9f110bf8d":"JUL","c58eb725c3f23b8846e00512094dc705e7eaee47801b362b1132811107be222a":"KPA","a65e13b87284b7ac9f86e069324c52c4ae5533793ca460d188ac0f967eb60d50":"KST","c143462d898478c2e190178686a903e95887f564ff61b7e22c6e5c93f8f10de5":"\u00deS","875f3d2b8f92b2120391e8d224837a31555aa20bad5d5393689923baccf85e01":"\u00deAH","7987881cbf9e5665db96f14ab31c0f07f9f22cf6bdc9a5db7fcf282a00051394":"\u00deG","b8bc48575dfcdb81b6207c1b65f7d49766953bab5b257b794e05f44aebdb073a":"BIS","b9f83a0656ef74c94bda786ae15d721e25c46148e66b3663e1bf1f720549fcd5":"BJA","ef5eed7947c24c0ea97d6eb1c32589b4f569f946aa41249fc3bfb4e48e368a3d":"CBR","bd54a05ff43a61379599e621e7d063acfd032820eaab9abf9ba2d8bd7570da87":"GAA","654a4997781d48169221ecce327682ec3eaa2b5c3d02b01c7e6ed4137eae3ed5":"HST","86e13fc07b5849c7219791c02e979e36511e611e8dc97737a857109a9c0ca86f":"IBJ","0e58e9389a0c86ead03fba6838dbbf83ef5dc67b0c2f91d25141af973148647b":"JCA","ab199942884980c3a078d1e1732186cb60768d92319dc82fdf14b5ac93e9a01b":"JON","550f12ceeab88711c86979cea9b4564b5e1eb18cb2cd62236dbcc7bdd63a3001":"JTHH","bfbd4ebf22fc2b688624464391ee36d1e1f84dafd3ff8896644c11881cd7c81d":"KMA","ca7a5be8baa50ed44da071f608eca47c61d192fb65bb71a8ebf09039637506cb":"OKS","3df8d54e6e50a11a2dd124e9ecf7ffc8d28469a4d5a30b3a96f2b71b141e8d86":"RI","3fef637fe2f606096e5d647a5fdcad9a9d76c265d230f009784819c43a280e8a":"SIV","1d3b98893af7d89d039f60ddc5fa894364c930aed879944903e91dec729a7835":"IKH","1eea1a49cf2557e0624d3d2af57223c67bbfc52e9cbf2d35733860022055ba17":"KAS","0d88b0c9e781a913c69d29c6b5e20e523c31e18674f7348e0ebc15119a982377":"AO","5ac3adcb669ff2653ebc24e450ad6e6ca54459f88e99f0f0b9f5d3d9d01cdc48":"BOS","e92eace0ce147409b90ab3844ec477e6942946873d5fb3c607ad6f8fd8120d92":"BJO","b43a3d8d69ea7281f72177a4ad158435e574807d9f1322ab5a9d3cd38e0612a3":"B\u00deG","1fa51c1931bf9f65f6db85ca55fab23d963b629111eb381212254eae5d0c7cc3":"SP","44f4e147bf2171e8c5ab2a42a5f51f016af02d527b1bb84d99db61d6aa849ae8":"FSG","dbb85ec61a2423179e3b49bf21a98e3db44bc06c3a6e027b5c0b012b495643dd":"GP","27f2b71400dd87153fdd66ada915d94b5cf5c75dba5376359bd3b4f8cac4fb06":"GO\u00d0","3091de0fc1389c047070fffd1515b9cf04e3a7e935c61e56a88e094211508b67":"ISI","696d1962e4d55035209684f07d227867dfe13ef794b01903390c3a379271ca1f":"ISL","d81902f03ec7f8b7965c90d9a8101214256eabd85df08f57aa7ac6d32066c138":"JOG","b0b93fe241d21fd07710d29dd59276c04882b59643c94a4e26602f57aa288a02":"KSR","87c8e7fe5953b26b3366b30627935cba582e3c1c6e5123e5d1afe3cc3c9f02ee":"KRO","899f0c10d7bff6cfb3fc12589ad437883dc79df9f48a554f114373a8cb0dd88b":"KVG","431678b0df4b382d6879440af2485ca73255fad2da930386d848376959b66428":"K\u00d6M","a2c97eaa02005e94cda1ff9d74ff3f841f09a9b91d3393b8eeae7422685485ba":"LSS","ca8df2d3fc1b27ec04c0c56cef4859bfc17a2acadf7498fd24aa3624942343be":"MJB","659674ead968ad69317e7c2e493d5a37ec0ab6489552b48c3c56b255341a7e29":"MTM","5e89c5b5da97df739e5b289e0a9e8c8670e4abf97be7d8c4168bcc2272167ca9":"OGA","e39eeeffe13310db76adefc0699923bbc7609df10c9cd7304fdd233ad4bf35a2":"RRR","2a97e12bcb7a766442d5e48b4da071ae72171f236422a832d3ee7c8fea96ae0d":"RMS","1582a719dca3a7ab0509a8f57abc4e851d9c6dfbf825e51aa67892fbd55d9520":"SAM","2f386727944c098100a49ee4c1441d65261c54ad41fd26fe7404a7ce467433cc":"SGH","dfe4bb0a5fc3b33f2512576aaedcda100c190576634e910f1672be1c4d7fb3db":"VHH","2c823d708afa0255c2115b891b3e25585cb6fab96f16fa06e1c19402f23534b2":"NH1","f42d4b4dccec0a6e46138f0ff18be765cc609b8c92f01c9f244358256f1fab50":"NH2","bc927290fee3411ef05539d10bb3b3f635676b067ba6df4e78d5bc5e666be725":"NH3","478dd06cc6048a607350368fb84491eb60b191a7a84ab7712ff36bb7e92fb539":"NT1","a0eb5ca26b9c8c6c5537849b9e76aadaf7f324c13c29f2ce1d0637fb6669fb32":"NT2","b816386ef38e9d47e83ceb8ce3f95e04c789c719bb8a27e573152088ef4faa9e":"NT3","15193acd19252dfe0b522ecf44c7ae3c126061cf058c184dccd285bf3f5d5335":"N\u00de1","33587c3880691e147cd49fcc37aed9b92a4d4193f8aa47b9ca5aa798955729e1":"N\u00de2","f051bfa20267e754fc6a4c60f4b46ad36e2dec0d85196a8f53d4b5e2ca4bfd1b":"NL1","d30d25d7156cdf75ac8a7371664b3a3c8a486daec751ab168edc8b54f07d6ef6":"AF","6148b699668e63539cc1f18eb6689051aa708934c44454191e58bb5a11882bf7":"SLS","70277235d576fc7dadd58d3e54d18fbcc541bc16b3b13e7ff97c882b97b7ea08":"WJ","a999fabe1ab513768473be8a83e4a4d3d87c7060a10e8c3d7cdaef82420a9145":"BGK","7569c2cd7011f4625d0f0c028f97403eb79f2279817c015212ad792bbaed35d9":"U\u00c6H","3a655050b4d638c3b14281c3af9e79a6152bc439acb54f85687769544df35df9":"JVN","6752a37b8a287c2e2d25a71ca795d18803acdd17b0fdfedb0572b14526d03a5e":"JBG","9da4358c023aa946bdfb66d274805f4f724af69ff98c7c0abbb32af1e8e21402":"MBB","568abd28dbabf7a0f49007393f5fc248ed1b2fb6fcce9f110f8db653dc67635a":"MLK","6cef87a64c194c8cea29efcd248b55156b73fbff5d0835b93a64f145a5aa757e":"NHS","a706c0d9ef3adbd220008f4c2c347570b8aee39ee684f12f4aca00ae43d1db43":"NEI","2119280f927716eabaa3b63baeac9264198fb4c73f2f81cce24f57e6daa31e9f":"PSB","cf0c6ddc34e93f0073e516cb2bf73100e870592e2ab1daacc628d96ba1d9f8f2":"SMB","891f726a829769ab5d084e2a8c19c4099237d955a8edd72f9f0cee577fbc44ad":"OMG","869ea2121fd56d119b1f3d5201945dda81737bb9c9454393130365a349395f4f":"HSJ","c8a33f960262fd848ef93a0b478274273045f047c28ad39d291fe697657f40c9":"AEH","5cfb018fcdb4ea6eafd9f32e60d93a8536eb38f67c68b0245d651620ef221750":"KOB","d0b84c8a0221031360beac31d48c52e59d460abc7b767ee17ee63e5dac6dd33c":"OH","87b6010940117d287c4a5a57e0b4efa49aac0e5c426f54bc22c641833ac191b9":"SRB","f439d6ae7daff11da1c0c252cf31d868841325803682e59eda3f6e4590b69828":"KRK","414723befabe0c19df1233356e5424537a2a6e4ec25333daee37881bcffada0c":"SJMR","4d4e6ac56eee5e05690d36afdc4b6309232a193cbca08ca587963bc8699848fc":"MEG","b7ebeb66513a06b711c8b0d8193dbccfc066c8bfef0eede3873a8bf53cb0495f":"HPO","8b59acbd03586282e81159157b4a6ff82686751a703f2d51265a60281da3fb4d":"HMGU","fcd32523faab6c6b0a309c320456c474b41d81cd5b30133e21048b31abe73e15":"VSL","d5f2efed324f2eaff73e2b9385a2438c87c14d429158843200844f157a62fce0":"CDK","c8c4e21e4d41c6c37bb2e9779080e9bde067ee095b9cb7bcb0dbe730a70ba4a6":"USH","61ef24f544d2af3c33a99afd4305d6bcae4335339157ab1a6562c7827679c156":"EO","0c325aa2f7fe17e621c1b6b4035dc2cf255767710182f17f821e734003e24846":"GF","f496d98ffdcff631cf66e49388439535b72be0967b3aaeb187da4664c1d43d7d":"EP","65188d18c86d8d8dab6051110df82090dfc01ad80e28a6346c79d69ad530dcd8":"SAP","c06afa519c5c943629a630a7ecef4287243d7e04ed062573fb57df8f87447743":"MOS","68649a968bf4650666c220b9503c7698d4bee1a2802b366c9154f91f488ad7cf":"BK","c91ac3dd5a26d877e0e8e9b48c6ff03b419fb0f676bd26a04972d35aeb72ba76":"RKG","159bebcea25793297819a88de7752de13cf879232963d87151391ba2de4a8555":"SDH","48e64c6d3a54b858b1c9512f44ead71e5fb5a797427b13837c91efe82e9755ca":"ELF","ee7407a5364ae55e602db88e0b06e1213d64f1206cc0d1c86af3a5cf7dc78127":"RRS","be48ec41acd7e616c33b5562623b2e39bbc683459fd58da6b28a31579838b3c5":"FZ","92d9776347676aeabbc9c9910d93445d9338bb211aa87edac291c491a0ed137e":"FA","a59a9a6c6f53a089ed6d6b44606b0a549ad051c34e2c130131607d519399f699":"VNO","cd2668ea02393825770149b612ac08465e84f28811a4bc7eede456f9e9bd563a":"IMS","46c43ff341f75c9ede0f500f6e26bcc23d2bc8b52af2d5841a34a48c6825dfd3":"LBA","bf06f3aee0b695ad06e6c14ac1a96d9add0e72556835a004a3d6ee0af9e14615":"BDI","c12d2240de0f395ce5efae316a2cee5f99d5ee2227f95cc34f95c81930df4f32":"EOH","94785fd9e6da0cdefecc6ec42317c1554c50b9de70bb9dddd7f33fa8b2aa254c":"BHL","8489cebafcf04e3568fae17afbaa0d3be746dd3176b7ef84d199f0830d030880":"B\u00de\u00de","b966d44031f22a2a8ac880f5e5b9d4e822145cacffef9f164b5f862b2e479aa9":"RJW","d365c4edecc8e27c0d88811b22113dde7222bf8385bf3b1f59a19e1697b272fb":"EHH","ba6b5613fb6302eee8a327c8648ac63c5d25f155f66cc38621519e5795b8492c":"KK\u00c1","989f54edbb2bea7b8d67d1f6962a6118d659ed1cb63188dfc9e5932336d240bd":"IR","af8fdfe7db4e7464d831a7bd80463c9b412b66897a00571baacb5812e1ae94b4":"AES","eb4cbb9a499dd705b01c727f5e3a878cc63837f4a217a684f6958ce3e2fe2889":"NKS","a0a36ad904a0ba35127ac78a66fe07ae2dcebf29cda42ee52e1d0479c8284f53":"ADV","263e3c15b8550a2427f4d7e108a0ee47a651f37bf4973dba9f41a71d624fd9e9":"HAE","2eac1e7b687ac37bea7d30ba06998ecd63768f7c9263f7cce90cc9968ac16cb7":"EMH","c8c831c4515abed31f3ec4e9dbf4618be25e37edceb54f7e8f5c15464a3988c5":"ESO","8097c4959a7753f20b29d89d2592d50ea910f039b4931709d3303eb131cab927":"BDS","4c28ed9758cfe1432006c27baac1860340d33e952099072e79484d706549ddcd":"UGB","d591a0e3e315465e23cb0ceb2dc06a9988216742cdcfed2facd21f195bcd73a7":"TO"};
+const FAKE_NAMES = {"ADV":"Ída","AIJ":"Örn","AVD":"Iðunnur","BDI":"Máni","BDS":"Snorri","BGK":"Ýmir","BHL":"Hulda","BK":"Kolbrún","BÞG":"Njáll","BÞÞ":"Vala","CDK":"Kári","EHH":"Leifur","ELF":"Una","EMH":"Ásta","EO":"Hrafnkell","EOH":"Loftur","ESO":"Egill","FA":"Þóra","HAE":"Dís","IR":"Fanney","ISI":"Gerður","ISL":"Lára","JBG":"Viðar","JBJ":"Æsa","JJH":"Ragnar","JTHH":"Birna","KPA":"Alda","KRK":"Daði","LBA":"Ingveldur","LSS":"Kolka","MEG":"Jökull","MJB":"Ólína","MOS":"Tumbra","MTM":"Nína","NEI":"Signý","NHS":"Katla","NKS":"Benónía","OGA":"Oddný","OH":"Brá","OKS":"Jóhanna","RJW":"Dagný","RMS":"Fjalar","RRR":"Perla","RRS":"Gunnar","SAP":"Magnea","SDH":"Yrsa","SIV":"Halla","SJMR":"Júlía","SMB":"Páll","TO":"Rósa","UGB":"Tinna","VSL":"Elvar","ÞS":"Bjarki","ASM":"Logi","DÖA":"Barði","IAI":"Sara","IBD":"Heiða","JKJ":"Guðjón","JUL":"Dagbjört","KST":"Vera","ÞAH":"Davíð","ÞG":"Yngvi","BIS":"Njóla","BJA":"Njörður","CBR":"Salka","GAA":"Hrönn","HST":"Teitur","IBJ":"Andri","JCA":"Ölver","JON":"Dóra","KMA":"Elka","RI":"Steinar","IKH":"Ómar","KAS":"Kolfinna","AO":"Dagur","BOS":"Melkorka","BJO":"Freyr","SP":"Tanja","FSG":"Björg","GP":"Petra","GOÐ":"Vetur","JOG":"Ósk","KSR":"Trausti","KRO":"Emma","KVG":"Jakob","KÖM":"Aldís","SAM":"Malín","SGH":"Bára","VHH":"Vignir","NH1":"Rúrik","NH2":"Tumi","NH3":"Ragna","NT1":"Valdís","NT2":"Haukur","NT3":"Nökkvi","NÞ1":"Gljúfra","NÞ2":"Alísa","NL1":"Fróði","AF":"Þórunn","SLS":"Gréta","WJ":"Mikael","UÆH":"Finnur","JVN":"Bergljót","MBB":"Hörður","MLK":"Lísa","PSB":"Reynir","OMG":"Brynjar","HSJ":"Iðunn","AEH":"Ísold","KOB":"Orri","SRB":"Jóna","HPO":"Karitas","HMGU":"Ylfa","USH":"Ingunn","GF":"Yrja","EP":"Guðrún","RKG":"Emil","FZ":"Marta","VNO":"Þröstur","IMS":"Vaka","KKÁ":"Tína","AES":"Elín"};
+const FAKE_PHONES = {"ADV":"785-4150","AIJ":"635-1750","AVD":"716-5741","BDI":"640-4814","BDS":"651-7227","BGK":"742-8428","BHL":"786-3664","BK":"789-6820","BÞG":"707-5374","BÞÞ":"636-3803","CDK":"873-5010","EHH":"683-8573","ELF":"794-5422","EMH":"885-4598","EO":"766-1916","EOH":"717-1525","ESO":"761-7572","FA":"737-2084","HAE":"708-6155","IR":"708-9179","ISI":"802-8517","ISL":"673-5339","JBG":"671-5040","JBJ":"887-9830","JJH":"734-8019","JTHH":"898-7543","KPA":"785-4593","KRK":"670-9348","LBA":"852-2489","LSS":"624-2796","MEG":"678-3621","MJB":"816-2040","MOS":"797-7252","MTM":"839-9669","NEI":"728-1188","NHS":"658-9797","NKS":"736-6573","OGA":"657-5808","OH":"822-3591","OKS":"832-1053","RJW":"734-9201","RMS":"691-9317","RRR":"654-5889","RRS":"859-4258","SAP":"678-7126","SDH":"682-9837","SIV":"871-1009","SJMR":"765-9005","SMB":"609-2832","TO":"785-6038","UGB":"722-1949","VSL":"723-2290","ÞS":"643-8962","ASM":"666-5056","DÖA":"803-7405","IAI":"854-2320","IBD":"685-8359","JKJ":"805-5552","JUL":"670-8053","KST":"881-5561","ÞAH":"812-6878","ÞG":"794-4780","BIS":"677-2359","BJA":"690-3478","CBR":"718-4822","GAA":"606-8945","HST":"693-5304","IBJ":"744-1067","JCA":"674-7864","JON":"873-7049","KMA":"889-6220","RI":"664-9445","IKH":"627-8481","KAS":"886-7428","AO":"803-7536","BOS":"801-2696","BJO":"846-7560","SP":"631-4122","FSG":"634-4420","GP":"825-3659","GOÐ":"656-6571","JOG":"626-2677","KSR":"600-3478","KRO":"874-2662","KVG":"786-1417","KÖM":"636-4407","SAM":"792-3433","SGH":"729-6691","VHH":"786-8768","NH1":"662-2889","NH2":"849-8634","NH3":"845-8927","NT1":"759-2407","NT2":"673-2674","NT3":"775-5337","NÞ1":"845-3645","NÞ2":"864-1378","NL1":"705-9654","AF":"785-3401","SLS":"878-1443","WJ":"870-5883","UÆH":"646-5278","JVN":"865-7008","MBB":"685-6827","MLK":"714-9725","PSB":"877-9236","OMG":"768-4654","HSJ":"699-4922","AEH":"805-4714","KOB":"702-9480","SRB":"852-6825","HPO":"614-1457","HMGU":"743-8737","USH":"732-4172","GF":"776-8327","EP":"778-6974","RKG":"641-4612","FZ":"652-4716","VNO":"840-4222","IMS":"772-4348","KKÁ":"847-1031","AES":"845-6636"};
+const NAME_ALIASES = {"Nanna Katrín Snorradóttir":"Nanna Kristín Snorradóttir","Magnús Orri Sigmundsson":"Magnús Orri Sigumundsson"};
+
+let PERIODS = [];
+let currentPeriodIdx = 0;
+let sortField = 'name';
+let sortDir = 1;
+
+const GATE_HASH = "9a4c64fdc09b8c9be5190778810059db04ffa478865e6d55986bd02f14ac182d"; // sama og vaktaplan: elko2026
 const GATE_SESSION_KEY = "elko_staff_overview_auth";
 const DATA_URL = "staff_overview.json";
+const LOCAL_KEY = "elko_staff_overview_extra_periods";
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function sha256Hex(text){const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('')}
@@ -144,42 +173,134 @@ async function unlockApp(){
   document.getElementById('app').classList.remove('app-hidden');
   try{
     const res=await fetch(DATA_URL,{cache:'no-cache'});
-    if(res.ok) STAFF=await res.json();
+    if(res.ok){
+      const data=await res.json();
+      PERIODS=data.periods||[];
+    }
   }catch(e){console.warn('Gat ekki sótt staff_overview.json',e);}
+  loadLocalPeriods();
   init();
 }
 if(sessionStorage.getItem(GATE_SESSION_KEY)==='1') unlockApp();
 
 function toggleTheme(){const app=document.getElementById('app');app.dataset.theme=app.dataset.theme==='dark'?'light':'dark'}
 
-const DEPT_COLORS={'HOME':'#2D9CDB','Sf HOME':'#2D9CDB','Svæðisstjóri HOME':'#2D9CDB','Sölufulltrúi TECH':'#8B5CF6','Svæðisstjóri TECH':'#8B5CF6','Þf.':'#38B24A','Svæðisstjóri Þjónustudeild':'#38B24A','Lager':'#F4B740','KnowHow':'#E05353','Verslunarstjóri':'#78A22F'};
+function loadLocalPeriods(){
+  try{
+    const raw=localStorage.getItem(LOCAL_KEY);
+    if(raw){
+      const extra=JSON.parse(raw);
+      extra.forEach(p=>{
+        if(!PERIODS.some(existing=>existing.start===p.start && existing.end===p.end)) PERIODS.push(p);
+      });
+    }
+  }catch(e){console.warn('Gat ekki lesið vistuð tímabil',e);}
+}
+function saveLocalPeriods(){
+  // vistum bara þau tímabil sem KOMU EKKI úr staff_overview.json (þ.e. flutt inn í vafra)
+  const imported = PERIODS.filter(p=>p.importedInBrowser);
+  try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(imported)); }catch(e){console.warn('Gat ekki vistað tímabil',e);}
+}
+
+const DEPT_COLORS={'HOME':'#2D9CDB','TECH':'#8B5CF6','ÞJÓNÓ':'#38B24A','LAGER':'#F4B740','Tækniþjónusta':'#E05353','STJÓRI':'#78A22F'};
 function deptColor(d){return DEPT_COLORS[d]||'#78A22F'}
 
-let sortField='name';
+function sortedPeriods(){return PERIODS.slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''))}
+function currentPeriod(){return sortedPeriods()[currentPeriodIdx]}
+function findPreviousPeriod(cur){
+  const sp=sortedPeriods();
+  const idx=sp.findIndex(p=>p===cur);
+  return idx>0?sp[idx-1]:null;
+}
+function findYearAgoPeriod(cur){
+  if(!cur||!cur.start) return null;
+  const curStart=new Date(cur.start+'T00:00:00');
+  const targetYear=curStart.getFullYear()-1;
+  let best=null,bestDiff=Infinity;
+  PERIODS.forEach(p=>{
+    if(p===cur||!p.start) return;
+    const pStart=new Date(p.start+'T00:00:00');
+    if(pStart.getFullYear()!==targetYear) return;
+    const diff=Math.abs((pStart-new Date(targetYear,curStart.getMonth(),curStart.getDate()))/86400000);
+    if(diff<bestDiff){bestDiff=diff;best=p;}
+  });
+  return best;
+}
+function periodTotals(p){
+  const worked=p.employees.reduce((a,e)=>a+e.workedDays,0);
+  const late=p.employees.reduce((a,e)=>a+e.lateCount,0);
+  const sick=p.employees.reduce((a,e)=>a+e.sickTotal,0);
+  const ages=p.employees.map(e=>e.age).filter(a=>a!=null);
+  const avgAge=ages.length?ages.reduce((a,b)=>a+b,0)/ages.length:0;
+  return {worked,late,sick,avgAge,count:p.employees.length};
+}
+function deltaSpan(cur,prev,invert){
+  if(prev==null) return '';
+  const diff=cur-prev;
+  if(diff===0) return '<span class="delta flat">=</span>';
+  const bad = invert ? diff>0 : diff<0;
+  return `<span class="delta ${bad?'up':'down'}">${diff>0?'+':''}${diff}</span>`;
+}
 
 function init(){
-  const depts=[...new Set(STAFF.map(e=>e.dept).filter(Boolean))].sort();
-  const sel=document.getElementById('deptFilter');
-  sel.innerHTML='<option value="">Allar deildir</option>'+depts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
-  if(STAFF.length){
-    document.getElementById('periodLabel').textContent=`${STAFF[0].periodStart} – ${STAFF[0].periodEnd}`;
-  }
+  const sp=sortedPeriods();
+  currentPeriodIdx=sp.length-1;
+  const sel=document.getElementById('periodSelect');
+  sel.innerHTML=sp.map((p,i)=>`<option value="${i}">${esc(p.label)}${p.importedInBrowser?' (flutt inn)':''}</option>`).join('');
+  sel.value=currentPeriodIdx;
+  renderAll();
+  lucide.createIcons();
+}
+function onPeriodChange(){
+  currentPeriodIdx=+document.getElementById('periodSelect').value;
+  renderAll();
+}
+function renderAll(){
+  const p=currentPeriod();
+  if(!p) return;
+  document.getElementById('periodLabel').textContent=p.label;
+  const depts=[...new Set(p.employees.map(e=>e.dept).filter(Boolean))].sort();
+  const df=document.getElementById('deptFilter');
+  df.innerHTML='<option value="">Allar deildir</option>'+depts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
   renderKpis();
+  renderCompare();
   renderTable();
   lucide.createIcons();
 }
 
 function renderKpis(){
-  const totalWorked=STAFF.reduce((a,e)=>a+e.workedDays,0);
-  const totalLate=STAFF.reduce((a,e)=>a+e.lateCount,0);
-  const totalSick=STAFF.reduce((a,e)=>a+e.sickTotal,0);
-  const ages=STAFF.map(e=>e.age).filter(a=>a!=null);
-  const avgAge=ages.length?(ages.reduce((a,b)=>a+b,0)/ages.length):0;
+  const p=currentPeriod();
+  const t=periodTotals(p);
+  const prev=findPreviousPeriod(p);
+  const prevT=prev?periodTotals(prev):null;
   document.getElementById('kpiRow').innerHTML=`
-    <div class="kpi-card"><div class="num">${STAFF.length}</div><div class="lbl">Starfsmenn í yfirliti</div></div>
-    <div class="kpi-card"><div class="num">${totalLate}</div><div class="lbl">Seinkomur samtals (${totalWorked?Math.round(totalLate/totalWorked*100):0}% af unnum dögum)</div></div>
-    <div class="kpi-card"><div class="num">${totalSick}</div><div class="lbl">Veikindaskráningar samtals</div></div>
-    <div class="kpi-card"><div class="num">${avgAge.toFixed(1)}</div><div class="lbl">Meðalaldur</div></div>
+    <div class="kpi-card"><div class="num">${t.count}</div><div class="lbl">Starfsmenn í yfirliti</div></div>
+    <div class="kpi-card"><div class="num">${t.late} ${prevT?deltaSpan(t.late,prevT.late,true):''}</div><div class="lbl">Seinkomur samtals (${t.worked?Math.round(t.late/t.worked*100):0}% af unnum dögum)</div></div>
+    <div class="kpi-card"><div class="num">${t.sick} ${prevT?deltaSpan(t.sick,prevT.sick,true):''}</div><div class="lbl">Veikindaskráningar samtals</div></div>
+    <div class="kpi-card"><div class="num">${t.avgAge.toFixed(1)}</div><div class="lbl">Meðalaldur</div></div>
+  `;
+}
+
+function renderCompare(){
+  const p=currentPeriod();
+  const t=periodTotals(p);
+  const prev=findPreviousPeriod(p);
+  const yearAgo=findYearAgoPeriod(p);
+  const box=document.getElementById('comparePanel');
+  function row(label,a,b){
+    if(!b) return `<div class="stat"><div class="num">–</div><div class="lbl">${esc(label)} · engin gögn til samanburðar</div></div>`;
+    const bt=periodTotals(b);
+    return `<div class="stat"><div class="num">${a} ${deltaSpan(a,label.includes('Seinkomur')?bt.late:bt.sick,true)}</div><div class="lbl">${esc(label)} (á móti ${esc(b.label)})</div></div>`;
+  }
+  box.innerHTML=`
+    <h3>KPI-samanburður · Seinkomur og veikindi</h3>
+    <div class="hint" style="margin-bottom:10px">A) á móti fyrra innfluttu tímabili · B) á móti sama tímabili í fyrra (þegar til). Flyttu inn fleiri mánuði til að sjá þróun.</div>
+    <div class="summary-grid">
+      ${row('Seinkomur á móti fyrra tímabili', t.late, prev)}
+      ${row('Seinkomur á móti fyrra ári', t.late, yearAgo)}
+      ${row('Veikindi á móti fyrra tímabili', t.sick, prev)}
+      ${row('Veikindi á móti fyrra ári', t.sick, yearAgo)}
+    </div>
   `;
 }
 
@@ -190,7 +311,7 @@ function sickBadge(e){
   if(e.sick.barn) parts.push(e.sick.barn+' barn');
   if(e.sick.ostadfest) parts.push(e.sick.ostadfest+' óstaðf.');
   const cls=e.sickTotal>=3?'bad':'warn';
-  return `<span class="badge ${cls}" title="${esc(parts.join(', '))}">${e.sickTotal}</span>`;
+  return `<span class="badge ${cls}">${e.sickTotal}</span><span class="sick-chip">${esc(parts.join(' · '))}</span>`;
 }
 function lateBadge(e){
   if(e.lateCount===0) return '<span class="badge ok">0</span>';
@@ -204,15 +325,27 @@ function seniorityLabel(months){
   return m?`${y} ár ${m} mán.`:`${y} ár`;
 }
 
+function setSort(field){
+  if(sortField===field) sortDir*=-1; else {sortField=field; sortDir=1;}
+  document.querySelectorAll('#staffTable th').forEach(th=>{
+    th.classList.toggle('active', th.dataset.field===field);
+    const arrow=th.querySelector('.arrow');
+    if(th.dataset.field===field) arrow.textContent=sortDir===1?'▲':'▼';
+  });
+  renderTable();
+}
+
 function renderTable(){
+  const p=currentPeriod();
+  if(!p) return;
   const q=document.getElementById('q').value.toLowerCase();
   const dept=document.getElementById('deptFilter').value;
-  sortField=document.getElementById('sortField').value;
-  let rows=STAFF.filter(e=>(!dept||e.dept===dept)&&(!q||(e.name+' '+e.initials+' '+e.dept).toLowerCase().includes(q)));
+  let rows=p.employees.filter(e=>(!dept||e.dept===dept)&&(!q||(e.name+' '+e.initials+' '+e.dept).toLowerCase().includes(q)));
   rows=rows.slice().sort((a,b)=>{
-    if(sortField==='name') return a.name.localeCompare(b.name);
-    const av=a[sortField]??-1, bv=b[sortField]??-1;
-    return bv-av;
+    let av,bv;
+    if(sortField==='name'||sortField==='dept'){av=a[sortField]||'';bv=b[sortField]||'';return sortDir*String(av).localeCompare(String(bv));}
+    av=a[sortField]??-1; bv=b[sortField]??-1;
+    return sortDir*(av-bv);
   });
   document.getElementById('staffBody').innerHTML=rows.map(e=>`
     <tr onclick="openDetail('${esc(e.initials)}')">
@@ -229,7 +362,8 @@ function renderTable(){
 }
 
 function openDetail(ini){
-  const e=STAFF.find(x=>x.initials===ini);
+  const p=currentPeriod();
+  const e=p.employees.find(x=>x.initials===ini);
   if(!e) return;
   document.getElementById('detailTitle').textContent=e.name;
   document.getElementById('detailSub').innerHTML=`${esc(e.dept||'')} · Aldur ${e.age??'—'} · Starfsaldur ${seniorityLabel(e.seniorityMonths)} (áætlað)`;
@@ -238,13 +372,16 @@ function openDetail(ini){
     <div class="stat"><div class="num">${e.lateCount}</div><div class="lbl">Seinkomur (${e.lateMinutesTotal} mín.)</div></div>
     <div class="stat"><div class="num">${e.sickTotal}</div><div class="lbl">Veikindi samtals</div></div>
   `;
-  const days=(e.days||[]).filter(d=>d.adgerd);
+  const days=(e.days||[]);
   document.getElementById('detailDays').innerHTML=days.map(d=>{
     const isSick=['VFL','VEB','VEIKÓST'].includes(d.adgerd);
     return `<div class="day-row ${d.late?'late':''} ${isSick?'sick':''}">
-      <div><b>${esc(d.date.slice(8,10))}.${esc(d.date.slice(5,7))}</b></div>
-      <div>${esc(d.adgerd)}${d.dept?' · '+esc(d.dept):''}${d.skipulag?' · áætlað '+esc(d.skipulag):''}${d.vidvera?' · raun '+esc(d.vidvera):''}</div>
-      <div>${d.late?`<span class="badge warn">+${d.lateMin} mín</span>`:''}</div>
+      <div class="dr-top">
+        <div><b>${esc(d.date.slice(8,10))}.${esc(d.date.slice(5,7))}</b></div>
+        <div>${esc(d.adgerd)}${d.dept?' · '+esc(d.dept):''}${d.skipulag?' · áætlað '+esc(d.skipulag):''}${d.vidvera?' · raun '+esc(d.vidvera):''}</div>
+        <div>${d.late?`<span class="badge warn">+${d.lateMin} mín</span>`:''}</div>
+      </div>
+      ${d.comment?`<div class="dr-comment">${esc(d.comment)}</div>`:''}
     </div>`;
   }).join('')||'<div class="hint">Engar skráningar.</div>';
   document.getElementById('detailModal').classList.add('show');
@@ -253,5 +390,215 @@ function openDetail(ini){
 document.querySelectorAll('.modal').forEach(m=>{
   m.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('show'); });
 });
+
+/* ================= Innflutningur beint í vafra (SheetJS) ================= */
+const HEADER_RE = /^(.*?)\s*,,\s*kt\.\s*(\d{10})\s*,\s*(\d{2})\.(\d{2})\.(\d{4})\s*-\s*(\d{2})\.(\d{2})\.(\d{4})/;
+const DAY_RE = /^(\d{2})\.(\d{2})\s*([a-záðéíóúýþæö]?)$/i;
+const FOOTNOTE_RE = /^\s*(\d+)\)\s*(.*)$/;
+const DEPT_KEYWORDS=[['KnowHow','Tækniþjónusta'],['Verslunarstjóri','STJÓRI'],['TECH','TECH'],['HOME','HOME'],['Þjónustudeild','ÞJÓNÓ'],['Þf','ÞJÓNÓ'],['Lager','LAGER']];
+
+function classifyAction(code){
+  const c=(code||'').trim().toUpperCase().replace(/Ó/g,'O');
+  if(c==='VINNA'||c==='AUKA') return 'work';
+  if(c==='VFL') return 'sick_stadfest';
+  if(c==='VEB') return 'sick_barn';
+  if(c==='VEIKOST') return 'sick_ostadfest';
+  if(c==='LL') return 'unpaid';
+  if(c==='SUM') return 'summer';
+  if(c==='JFO') return 'funeral';
+  if(c==='NAMSK') return 'training';
+  if(c==='LOKAÐ') return 'closed';
+  if(c==='LAUL') return 'unpaid';
+  if(c) return 'other';
+  return 'empty';
+}
+function normalizeDept(eining){
+  if(!eining) return '';
+  for(const [kw,canon] of DEPT_KEYWORDS){ if(eining.includes(kw)) return canon; }
+  return eining.replace('Skeifan','').trim();
+}
+function kennitalaAge(kt, refDate){
+  const dd=+kt.slice(0,2), mm=+kt.slice(2,4), yy=+kt.slice(4,6);
+  for(const century of [1900,2000]){
+    const byear=century+yy;
+    const bdate=new Date(byear, mm-1, dd);
+    if(bdate.getMonth()!==mm-1 || bdate.getDate()!==dd) continue;
+    let age=refDate.getFullYear()-byear;
+    const hadBday=(refDate.getMonth()>mm-1)||(refDate.getMonth()===mm-1 && refDate.getDate()>=dd);
+    if(!hadBday) age--;
+    if(age>=14 && age<=80) return age;
+  }
+  return null;
+}
+function parseTimeRange(s){
+  if(!s || !String(s).includes('-')) return [null,null];
+  const parts=String(s).split('-');
+  const toMin=(t)=>{t=t.trim(); if(!t.includes(':')) return null; const hm=t.split(':'); return (+hm[0])*60+(+hm[1]);};
+  return [toMin(parts[0]), toMin(parts[1])];
+}
+function cellVal(ws,r,c){
+  const addr=XLSX.utils.encode_cell({r:r-1,c:c-1});
+  const cell=ws[addr];
+  return cell?cell.v:null;
+}
+function buildColMap(ws, headerRow, range){
+  const map={};
+  for(let c=range.s.c;c<=range.e.c;c++){
+    const v=cellVal(ws, headerRow, c+1);
+    if(v) map[String(v).trim()]=c+1;
+  }
+  return map;
+}
+function parseFootnotes(ws, range){
+  for(let r=range.e.r+1; r>=Math.max(range.e.r-3,1); r--){
+    const val=cellVal(ws, r, 2);
+    if(val && String(val).includes(')')){
+      const notes={};
+      String(val).split('\n').forEach(line=>{
+        const m=FOOTNOTE_RE.exec(line);
+        if(m) notes[m[1]]=m[2].replace(/\|\s*$/,'').trim();
+      });
+      if(Object.keys(notes).length) return notes;
+    }
+  }
+  return {};
+}
+function parseIcelandicDate(dd,mm,yyyy){return new Date(+yyyy, +mm-1, +dd)}
+function fmtDate(d){return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`}
+function toIso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+
+async function buildPeriodFromWorkbook(wb){
+  const byKt={};
+  let periodStart=null, periodEnd=null;
+  for(const sheetName of wb.SheetNames){
+    const ws=wb.Sheets[sheetName];
+    if(!ws['!ref']) continue;
+    const range=XLSX.utils.decode_range(ws['!ref']);
+    const header=cellVal(ws,2,2);
+    if(!header) continue;
+    const m=HEADER_RE.exec(String(header));
+    if(!m) continue;
+    const fullname=m[1].trim();
+    const kt=m[2];
+    const start=parseIcelandicDate(m[3],m[4],m[5]);
+    const end=parseIcelandicDate(m[6],m[7],m[8]);
+    periodStart=start; periodEnd=end;
+
+    const lookupName=NAME_ALIASES[fullname]||fullname;
+    const nameHash=await sha256Hex(lookupName);
+    const initials=NAME_HASH_TO_INITIALS[nameHash];
+    if(!initials) continue; // óþekkt nafn - ekki hægt að para á öruggan hátt
+
+    const cols=buildColMap(ws,3,range);
+    const cDag=cols['Dag.']||2;
+    const cEining=cols['Eining'];
+    const cAdgerd=cols['Adgerd'];
+    const cSkipulag=cols['Skipulag'];
+    const cVidvera=cols['Vidvera'];
+    const cAth=cols['Ath'];
+    const footnotes=parseFootnotes(ws,range);
+
+    if(!byKt[kt]) byKt[kt]={initials, rowsByDate:{}};
+    for(let r=4;r<=range.e.r+1;r++){
+      const dagRaw=cellVal(ws,r,cDag);
+      if(!dagRaw) continue;
+      const dm=DAY_RE.exec(String(dagRaw).trim());
+      if(!dm) continue;
+      const mm=+dm[2];
+      const year = mm===start.getMonth()+1 ? start.getFullYear() : end.getFullYear();
+      const date=new Date(year, mm-1, +dm[1]);
+      const iso=toIso(date);
+      const eining=cEining?cellVal(ws,r,cEining):null;
+      const adgerd=cAdgerd?cellVal(ws,r,cAdgerd):null;
+      const skipulag=cSkipulag?cellVal(ws,r,cSkipulag):null;
+      const vidvera=cVidvera?cellVal(ws,r,cVidvera):null;
+      const ath=cAth?cellVal(ws,r,cAth):null;
+      const athStr=ath?String(ath).trim():'';
+      const athNumM=/^(\d+)\)/.exec(athStr);
+      const comment=athNumM?footnotes[athNumM[1]]:(athStr||null);
+      byKt[kt].rowsByDate[iso]={
+        date:iso,
+        eining:eining?String(eining).trim():'',
+        adgerd:adgerd?String(adgerd).trim():'',
+        skipulag:skipulag?String(skipulag).trim():'',
+        vidvera:vidvera?String(vidvera).trim():'',
+        comment,
+      };
+    }
+  }
+
+  const employees=[];
+  Object.entries(byKt).forEach(([kt,entry])=>{
+    const ini=entry.initials;
+    const age=kennitalaAge(kt, new Date());
+    const rows=Object.values(entry.rowsByDate).sort((a,b)=>a.date.localeCompare(b.date));
+    let workedDays=0, lateCount=0, lateMinutesTotal=0;
+    const sick={stadfest:0,barn:0,ostadfest:0};
+    let unpaid=0, training=0, summer=0, funeral=0, closed=0, other=0;
+    const depts={};
+    const dayRecords=[];
+    rows.forEach(row=>{
+      const kind=classifyAction(row.adgerd);
+      const dept=normalizeDept(row.eining);
+      if(dept) depts[dept]=(depts[dept]||0)+1;
+      let isLate=false, lateMin=0;
+      if(kind==='work'){
+        workedDays++;
+        const st=parseTimeRange(row.skipulag)[0];
+        const vt=parseTimeRange(row.vidvera)[0];
+        if(st!=null && vt!=null && vt>st+5){isLate=true; lateMin=vt-st; lateCount++; lateMinutesTotal+=lateMin;}
+      } else if(kind==='sick_stadfest') sick.stadfest++;
+      else if(kind==='sick_barn') sick.barn++;
+      else if(kind==='sick_ostadfest') sick.ostadfest++;
+      else if(kind==='unpaid') unpaid++;
+      else if(kind==='training') training++;
+      else if(kind==='summer') summer++;
+      else if(kind==='funeral') funeral++;
+      else if(kind==='closed') closed++;
+      else if(kind==='other') other++;
+      if(row.adgerd) dayRecords.push({date:row.date, adgerd:row.adgerd, dept, skipulag:row.skipulag, vidvera:row.vidvera, late:isLate, lateMin, comment:row.comment});
+    });
+    const topDept=Object.entries(depts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+    const sickTotal=sick.stadfest+sick.barn+sick.ostadfest;
+    employees.push({
+      initials:ini, name:FAKE_NAMES[ini]||ini, phone:FAKE_PHONES[ini]||'',
+      dept:topDept, age, workedDays, lateCount, lateMinutesTotal,
+      sick, sickTotal, unpaid, training, summer, funeral, closed, other,
+      startMonth:null, seniorityMonths:null,
+      days:dayRecords,
+    });
+  });
+  employees.sort((a,b)=>a.name.localeCompare(b.name));
+
+  return {
+    label: periodStart?`${fmtDate(periodStart)} - ${fmtDate(periodEnd)}`:'Óþekkt tímabil',
+    start: periodStart?toIso(periodStart):null,
+    end: periodEnd?toIso(periodEnd):null,
+    importedAt: new Date().toISOString(),
+    importedInBrowser: true,
+    employees,
+  };
+}
+
+async function handleImportFile(event){
+  const file=event.target.files[0];
+  event.target.value='';
+  if(!file) return;
+  if(!file.name.toLowerCase().endsWith('.xlsx')){ alert('Aðeins .xlsx skjöl eru studd.'); return; }
+  try{
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array'});
+    const period=await buildPeriodFromWorkbook(wb);
+    if(!period.employees.length){ alert('Engir þekktir starfsmenn fundust í skjalinu — ekkert flutt inn.'); return; }
+    const existingIdx=PERIODS.findIndex(p=>p.start===period.start && p.end===period.end);
+    if(existingIdx>=0) PERIODS[existingIdx]=period; else PERIODS.push(period);
+    saveLocalPeriods();
+    init();
+    alert(`Flutt inn: ${period.employees.length} starfsmenn fyrir tímabilið ${period.label}`);
+  }catch(e){
+    console.error(e);
+    alert('Villa við að lesa skjalið: '+e.message);
+  }
+}
 </script>
 </body></html>
